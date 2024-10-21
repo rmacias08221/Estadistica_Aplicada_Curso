@@ -1,0 +1,240 @@
+---
+title: "Introducción al Tidyverse y dplyr"
+author: "Ricardo Macías Bohorquez"
+date: "`r format(Sys.Date(), '%d de %B de %Y')`"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    theme: cosmo
+    highlight: kate
+    code_folding: hide
+---
+
+# Introducción al Tidyverse y dplyr
+
+El paquete `tidyverse` es una colección de paquetes de R diseñados para trabajar de manera eficiente con datos. Entre ellos, el paquete `dplyr` destaca por su capacidad para manipular y transformar data frames de forma legible y eficaz.
+
+---
+
+## 1. Instalación y carga del paquete `tidyverse`
+
+Primero, es necesario instalar y cargar el paquete `tidyverse` si no lo tienes instalado.
+
+### 1.1 Instalación de tidyverse
+
+```r
+# Instalar tidyverse (solo si no lo tienes instalado)
+# install.packages("tidyverse")
+```
+
+### 1.2 Carga del paquete
+
+```r
+# Cargar tidyverse
+library(tidyverse)
+```
+
+---
+
+## 2. Beneficios de usar `tidyverse` para la manipulación de datos
+
+El paquete `tidyverse` facilita el trabajo con datos al proporcionar:
+
+- **Funciones consistentes**: Los paquetes del `tidyverse` siguen una gramática coherente, lo que hace que aprender y utilizar estas funciones sea fácil.
+- **Legibilidad del código**: El uso del operador pipe `%>%` permite encadenar funciones de forma clara, mejorando la legibilidad.
+- **Optimización de operaciones**: Funciona de manera eficiente con grandes conjuntos de datos.
+
+---
+
+## 3. El operador pipe `%>%`
+
+El operador pipe `%>%` es utilizado para encadenar múltiples operaciones, permitiendo que el resultado de una función sea la entrada de la siguiente.
+
+### 3.1 Ejemplo del uso de `%>%`
+
+```r
+# Sin el operador pipe
+round(mean(c(5, 10, 15)))
+
+# Con el operador pipe
+c(5, 10, 15) %>% mean() %>% round()
+```
+
+---
+
+## 4. Selección de columnas con `select()`
+
+La función `select()` se utiliza para seleccionar columnas específicas de un data frame.
+
+```r
+# Crear un data frame de ejemplo
+df <- data.frame(
+  Nombre = c("Juan", "María", "Pedro", "Ana"),
+  Edad = c(23, 25, 30, 28),
+  Ciudad = c("Bogotá", "Medellín", "Cali", "Cartagena"),
+  Salario = c(3000, 3500, 4000, 4500)
+)
+
+# Seleccionar las columnas "Nombre" y "Edad"
+df %>% select(Nombre, Edad)
+
+# Renombrar la columna "Salario" a "Ingresos"
+df %>% select(Nombre, Edad, Ingresos = Salario)
+
+# Reordenar las columnas
+df %>% select(Salario, everything())
+```
+
+---
+
+## 5. Filtrado de filas con `filter()`
+
+La función `filter()` permite filtrar filas basadas en condiciones lógicas.
+
+```r
+# Filtrar filas donde la Edad es mayor de 25
+df %>% filter(Edad > 25)
+
+# Filtrar filas donde la Ciudad es "Bogotá"
+df %>% filter(Ciudad == "Bogotá")
+
+# Filtrar filas donde el Salario es mayor de 3500 y la Edad es menor de 30
+df %>% filter(Salario > 3500, Edad < 30)
+```
+
+---
+
+## 6. Creación de nuevas variables con `mutate()`
+
+La función `mutate()` permite crear o transformar columnas en un data frame.
+
+```r
+# Crear una nueva columna "SalarioUSD" dividiendo el Salario por 4000
+df %>% mutate(SalarioUSD = Salario / 4000)
+
+# Crear una nueva columna que indique si la persona es mayor de 25 años
+df %>% mutate(Mayor_25 = ifelse(Edad > 25, "Sí", "No"))
+```
+
+---
+
+## 7. Resúmenes y agregaciones con `summarise()` y `group_by()`
+
+La función `summarise()` se utiliza para calcular estadísticas resumidas y `group_by()` permite agrupar los datos antes de realizar el resumen.
+
+### 7.1 Agrupar y resumir datos
+
+```r
+# Calcular el salario promedio
+df %>% summarise(SalarioPromedio = mean(Salario))
+
+# Agrupar por "Ciudad" y calcular el salario promedio por ciudad
+df %>% group_by(Ciudad) %>% summarise(SalarioPromedio = mean(Salario))
+
+# Agrupar por "Ciudad" y contar el número de personas por ciudad
+df %>% group_by(Ciudad) %>% summarise(NumeroPersonas = n())
+```
+
+---
+
+## 8. Ordenamiento de datos con `arrange()`
+
+La función `arrange()` se utiliza para ordenar filas de un data frame en orden ascendente o descendente.
+
+### 8.1 Ordenar datos
+
+```r
+# Ordenar por "Salario" en orden ascendente
+df %>% arrange(Salario)
+
+# Ordenar por "Salario" en orden descendente
+df %>% arrange(desc(Salario))
+
+# Ordenar por "Ciudad" y luego por "Edad"
+df %>% arrange(Ciudad, Edad)
+```
+
+---
+
+## 9. Ejercicios Prácticos
+
+### **Ejercicio 1**: Selección y renombramiento de columnas
+
+Usa la función `select()` para seleccionar las columnas "Nombre" y "Salario" del data frame `df`, y renombra la columna "Salario" como "Ingresos".
+
+```r
+
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```r
+# Solución
+df %>% select(Nombre, Ingresos = Salario)
+```
+
+</details>
+
+---
+
+### **Ejercicio 2**: Filtrado de filas
+
+Filtra las filas donde la edad sea mayor de 25 años y la ciudad sea "Bogotá".
+
+```r
+
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```r
+# Solución
+df %>% filter(Edad > 25, Ciudad == "Bogotá")
+```
+
+</details>
+
+---
+
+### **Ejercicio 3**: Creación de nuevas variables
+
+Crea una nueva columna llamada "Bonificación" que sea el 10% del salario para las personas mayores de 25 años y el 5% del salario para las personas de 25 años o menos.
+
+```r
+
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```r
+# Solución
+df %>% mutate(Bonificacion = ifelse(Edad > 25, Salario * 0.10, Salario * 0.05))
+```
+
+</details>
+
+---
+
+### **Ejercicio 4**: Agrupación y resumen
+
+Agrupa el data frame por "Ciudad" y calcula la edad promedio de las personas en cada ciudad.
+
+```r
+
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```r
+# Solución
+df %>% group_by(Ciudad) %>% summarise(EdadPromedio = mean(Edad))
+```
+
+</details>
+

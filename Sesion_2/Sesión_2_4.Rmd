@@ -1,0 +1,226 @@
+---
+title: "Transformación de Datos con tidyr"
+author: "Ricardo Macías Bohórquez"
+date: "`r format(Sys.Date(), '%d de %B de %Y')`"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    theme: cosmo
+    highlight: kate
+    code_folding: hide
+---
+
+# Transformación de Datos con tidyr
+
+En esta clase, aprenderemos cómo transformar datos con el paquete `tidyr`, el cual es parte del ecosistema `tidyverse`. Nos enfocaremos en convertir datos entre diferentes formatos, gestionar valores perdidos, y unir datasets. Estas técnicas son esenciales para la limpieza y preparación de datos antes de su análisis.
+
+---
+
+## 1. Reshape de Datos
+
+La transformación o "reshape" de datos implica cambiar entre formatos **ancho** (wide) y **largo** (long). En muchos casos, necesitaremos reorganizar los datos para que sean más fáciles de analizar o visualizar.
+
+`tidyr` ofrece dos funciones clave para esta tarea:
+- `pivot_longer()`: Convierte datos de formato ancho a largo.
+- `pivot_wider()`: Convierte datos de formato largo a ancho.
+
+### 1.1 De ancho a largo con `pivot_longer()`
+
+```{r}
+# Instalar y cargar tidyr si es necesario
+# install.packages("tidyr")
+library(tidyr)
+library(dplyr)
+
+# Data frame en formato ancho
+df_ancho <- data.frame(
+  Nombre = c("Juan", "María", "Pedro"),
+  Año_2020 = c(90, 85, 88),
+  Año_2021 = c(93, 87, 90)
+)
+print(df_ancho)
+
+# Transformar de formato ancho a largo
+df_largo <- df_ancho %>% 
+  pivot_longer(cols = c("Año_2020", "Año_2021"), names_to = "Año", values_to = "Calificaciones")
+print(df_largo)
+```
+
+### 1.2 De largo a ancho con `pivot_wider()`
+
+```{r}
+print(names(df_ancho))
+
+# Aplicar pivot_longer usando los nombres correctos de las columnas
+df_largo <- df_ancho %>%
+  pivot_longer(cols = c("Año_2020", "Año_2021"), names_to = "Año", values_to = "Calificaciones")
+
+# Imprimir el data frame transformado
+print(df_largo)
+
+```
+
+---
+
+## 2. Manejo de Valores Perdidos
+
+Los valores perdidos son comunes en los conjuntos de datos reales y es importante identificarlos y gestionarlos antes de proceder al análisis. `tidyr` incluye varias herramientas útiles para el manejo de valores faltantes.
+
+### 2.1 Identificar Valores Perdidos
+
+La función `is.na()` nos permite identificar los valores perdidos.
+
+```{r}
+# Crear un data frame con valores NA
+df_na <- data.frame(
+  Nombre = c("Juan", "María", "Pedro"),
+  Edad = c(23, NA, 30),
+  Salario = c(3000, 3500, NA)
+)
+print(df_na)
+
+# Identificar valores perdidos
+is.na(df_na)
+
+# Contar cuántos valores faltantes hay por columna
+colSums(is.na(df_na))
+```
+
+### 2.2 Tratar Valores Perdidos
+
+Existen diferentes formas de manejar valores perdidos, como eliminarlos o rellenarlos con un valor adecuado.
+
+- **Eliminar valores perdidos**: Utilizando `drop_na()`.
+- **Rellenar valores perdidos**: Utilizando `replace_na()`.
+
+```{r}
+# Eliminar filas con valores NA
+df_sin_na <- df_na %>% drop_na()
+print(df_sin_na)
+
+# Rellenar valores faltantes
+df_rellenado <- df_na %>% replace_na(list(Edad = 25, Salario = 3000))
+print(df_rellenado)
+```
+
+---
+
+## 3. Unión de Datasets
+
+Para combinar diferentes datasets en uno solo, utilizamos las funciones de `dplyr` como `left_join()`, `right_join()`, `inner_join()`, y `full_join()`, similares a las uniones en SQL.
+
+### 3.1 Ejemplos de Uniones
+
+```{r}
+# Instalar y cargar dplyr si es necesario
+# install.packages("dplyr")
+library(dplyr)
+
+# Crear dos data frames
+df1 <- data.frame(
+  ID = c(1, 2, 3),
+  Nombre = c("Juan", "María", "Pedro")
+)
+
+df2 <- data.frame(
+  ID = c(2, 3, 4),
+  Salario = c(3500, 4000, 4500)
+)
+
+# Unir con left_join (mantener todas las filas de df1)
+left_join(df1, df2, by = "ID")
+
+# Unir con right_join (mantener todas las filas de df2)
+right_join(df1, df2, by = "ID")
+
+# Unir con inner_join (solo filas comunes)
+inner_join(df1, df2, by = "ID")
+
+# Unir con full_join (todas las filas de ambos datasets)
+full_join(df1, df2, by = "ID")
+```
+
+---
+
+## 4. Ejercicios Prácticos
+
+### **Ejercicio 1**: Transformar de Ancho a Largo
+
+Transforma el siguiente data frame en formato largo, con las columnas `Ventas_2020` y `Ventas_2021` convertidas en una columna "Año" y otra columna "Ventas":
+
+```r
+df_ancho <- data.frame(
+  Producto = c("A", "B", "C"),
+  Ventas_2020 = c(100, 150, 200),
+  Ventas_2021 = c(110, 160, 210)
+)
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```{r}
+# Verificar nombres de las columnas
+print(names(df_ancho))
+# Ahora transformamos de ancho a largo
+df_largo <- df_ancho %>% 
+  pivot_longer(cols = c("Año_2020", "Año_2021"), names_to = "Año", values_to = "Ventas")
+print(df_largo)
+```
+
+</details>
+
+### **Ejercicio 2**: Manejar Valores Perdidos
+
+Elimina las filas con valores NA del siguiente data frame, y luego rellena los valores NA con los siguientes valores: Edad = 25 y Salario = 3200.
+
+```r
+df_na <- data.frame(
+  Nombre = c("Juan", "María", "Pedro"),
+  Edad = c(23, NA, 30),
+  Salario = c(3000, 3500, NA)
+)
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```{r}
+# Eliminar filas con NA
+df_sin_na <- df_na %>% drop_na()
+print(df_sin_na)
+
+# Rellenar los NA con valores específicos
+df_rellenado <- df_na %>% replace_na(list(Edad = 25, Salario = 3200))
+print(df_rellenado)
+```
+
+</details>
+
+### **Ejercicio 3**: Unir Datasets
+
+Realiza una unión `full_join()` entre los siguientes dos data frames para incluir todas las filas de ambos datasets.
+
+```r
+df1 <- data.frame(
+  ID = c(1, 2, 3),
+  Nombre = c("Juan", "María", "Pedro")
+)
+
+df2 <- data.frame(
+  ID = c(2, 3, 4),
+  Ciudad = c("Bogotá", "Medellín", "Cali")
+)
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```{r}
+df_union <- full_join(df1, df2, by = "ID")
+print(df_union)
+```
+
+</details>

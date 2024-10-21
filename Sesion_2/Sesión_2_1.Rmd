@@ -1,0 +1,358 @@
+---
+title: "Vectores y Factores en R"
+author: "Ricardo Macías Bohórquez"
+date: "`r format(Sys.Date(), '%d de %B de %Y')`"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    theme: cosmo
+    highlight: kate
+    code_folding: hide
+---
+
+# Introducción a Vectores y Factores
+
+En esta clase, exploraremos dos de las estructuras de datos fundamentales en R: **vectores** y **factores**. Comprender estas estructuras es esencial para manipular y analizar datos de manera eficiente.
+
+---
+
+## 1. Vectores en R
+
+Un **vector** es una colección de elementos del mismo tipo. Es la estructura de datos más básica en R y es esencial para manejar datos numéricos, de caracteres o lógicos.
+
+### 1.1 Creación de Vectores
+
+#### Con la función `c()`
+
+La función `c()` (concatenar) se utiliza para crear vectores combinando elementos individuales.
+
+```{r}
+# Vector numérico
+numeros <- c(1, 2, 3, 4, 5)
+print(numeros)
+```
+
+```{r}
+# Vector de caracteres
+frutas <- c("manzana", "banana", "cereza")
+print(frutas)
+```
+
+```{r}
+# Vector lógico
+logicos <- c(TRUE, FALSE, TRUE)
+print(logicos)
+```
+
+#### Usando operadores y funciones
+
+- **Operador `:`**: Crea secuencias de números enteros.
+
+  ```{r}
+  # Números del 1 al 10
+  secuencia1 <- 1:10
+  print(secuencia1)
+  ```
+
+- **Función `seq()`**: Crea secuencias con incrementos definidos.
+
+  ```{r}
+  # Números del 0 al 1 con incrementos de 0.1
+  secuencia2 <- seq(0, 1, by = 0.1)
+  print(secuencia2)
+  ```
+
+- **Función `rep()`**: Repite elementos.
+
+  ```{r}
+  # Repetir "A" 5 veces
+  repeticiones <- rep("A", times = 5)
+  print(repeticiones)
+  ```
+
+### 1.2 Manipulación de Vectores
+
+#### Accediendo a elementos
+
+Utilizamos corchetes `[]` para acceder a elementos o subconjuntos.
+
+```{r}
+# Vector original
+print(numeros)
+```
+
+```{r}
+# Primer elemento
+numeros[1]
+```
+
+```{r}
+# Del segundo al cuarto elemento
+numeros[2:4]
+```
+
+```{r}
+# Excluir el tercer elemento
+numeros[-3]
+```
+
+#### Operaciones vectorizadas
+
+Las operaciones se aplican a cada elemento del vector.
+
+```{r}
+# Sumar 2 a cada elemento
+numeros + 2
+```
+
+```{r}
+# Multiplicar vectores
+numeros * c(2, 2, 2, 2, 2)
+```
+
+#### Filtrado de vectores
+
+Podemos filtrar elementos basados en condiciones lógicas.
+
+```{r}
+# Elementos mayores que 3
+numeros[numeros > 3]
+```
+
+```{r}
+# Posiciones donde el valor es TRUE
+logicos[logicos == TRUE]
+```
+
+---
+
+## 2. Factores en R
+
+Los **factores** son estructuras de datos utilizadas para almacenar datos categóricos. Son especialmente útiles en análisis estadísticos y gráficos.
+
+### 2.1 Creación de Factores
+
+Utilizamos la función `factor()` para crear factores.
+
+```{r}
+# Datos categóricos
+colores <- c("rojo", "azul", "verde", "rojo", "azul")
+print(colores)
+```
+
+```{r}
+# Convertir a factor
+factor_colores <- factor(colores)
+print(factor_colores)
+```
+
+#### Verificar niveles
+
+```{r}
+levels(factor_colores)
+```
+
+### 2.2 Especificar niveles y orden
+
+Podemos definir niveles y su orden, lo cual es útil para datos ordinales.
+
+```{r}
+# Datos de satisfacción
+satisfaccion <- c("alta", "media", "baja", "alta")
+print(satisfaccion)
+```
+
+```{r}
+# Crear factor con orden
+factor_satisfaccion <- factor(satisfaccion, levels = c("baja", "media", "alta"), ordered = TRUE)
+print(factor_satisfaccion)
+```
+
+#### Verificar niveles y orden
+
+```{r}
+levels(factor_satisfaccion)
+is.ordered(factor_satisfaccion)
+```
+
+### 2.3 Manipulación de Factores
+
+#### Cambiar nombres de niveles
+
+```{r}
+# Niveles actuales
+levels(factor_colores)
+```
+
+```{r}
+# Cambiar nombres de niveles
+levels(factor_colores) <- c("Azul", "Rojo", "Verde")
+print(factor_colores)
+```
+
+#### Convertir factores a caracteres o numéricos
+
+```{r}
+# A caracteres
+as.character(factor_colores)
+```
+
+```{r}
+# A numéricos (índices de niveles)
+as.numeric(factor_colores)
+```
+
+---
+
+## 3. Ejemplos Prácticos
+
+### **Ejemplo 1**: Análisis de calificaciones
+
+Supongamos que tenemos las calificaciones de estudiantes:
+
+```{r}
+# Calificaciones
+calificaciones <- c(90, 75, 88, 60, 95)
+print(calificaciones)
+```
+
+#### Clasificar calificaciones
+
+Queremos clasificar las calificaciones en "Aprobado" y "Reprobado".
+
+```{r}
+# Crear factor
+estado <- factor(ifelse(calificaciones >= 70, "Aprobado", "Reprobado"))
+print(estado)
+```
+
+```{r}
+# Ver resultados
+table(estado)
+```
+
+### **Ejemplo 2**: Encuestas de opinión
+
+Datos de opiniones:
+
+```{r}
+# Opiniones
+opiniones <- c("De acuerdo", "En desacuerdo", "Neutral", "De acuerdo")
+print(opiniones)
+```
+
+#### Convertir a factor ordenado
+
+```{r}
+# Crear factor ordenado
+factor_opiniones <- factor(opiniones, levels = c("En desacuerdo", "Neutral", "De acuerdo"), ordered = TRUE)
+print(factor_opiniones)
+```
+
+---
+
+## 4. Ejercicios Prácticos
+
+### **Ejercicio 1**: Creación y manipulación de vectores
+
+Crea un vector con los números impares del 1 al 19. Luego, multiplica cada elemento por 2.
+
+```{r}
+# Tu código aquí
+
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```{r}
+# Crear vector de números impares
+impares <- seq(1, 19, by = 2)
+print(impares)
+
+# Multiplicar por 2
+resultado <- impares * 2
+print(resultado)
+```
+
+</details>
+
+---
+
+### **Ejercicio 2**: Trabajando con factores
+
+Tienes los siguientes datos de nivel educativo:
+
+```{r}
+educacion <- c("Secundaria", "Universidad", "Primaria", "Universidad", "Secundaria")
+print(educacion)
+```
+
+Convierte este vector en un factor ordenado de menor a mayor nivel educativo.
+
+```{r}
+# Tu código aquí
+
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```{r}
+# Crear factor ordenado
+factor_educacion <- factor(educacion, levels = c("Primaria", "Secundaria", "Universidad"), ordered = TRUE)
+print(factor_educacion)
+
+# Verificar niveles
+levels(factor_educacion)
+```
+
+</details>
+
+---
+
+### **Ejercicio 3**: Análisis de datos categóricos
+
+Supongamos que realizaste una encuesta sobre preferencias de colores:
+
+```{r}
+colores_encuesta <- c("Azul", "Verde", "Rojo", "Azul", "Verde", "Verde")
+print(colores_encuesta)
+```
+
+Convierte los datos a factor y muestra un gráfico de barras de las frecuencias.
+
+```{r}
+# Tu código aquí
+
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```{r}
+# Convertir a factor
+factor_colores_encuesta <- factor(colores_encuesta)
+print(factor_colores_encuesta)
+
+# Tabla de frecuencias
+tabla_colores <- table(factor_colores_encuesta)
+print(tabla_colores)
+
+# Gráfico de barras
+barplot(tabla_colores, main = "Preferencias de Colores", col = rainbow(length(tabla_colores)))
+```
+
+</details>
+
+---
+
+## 5. Buenas Prácticas
+
+- **Uso correcto de factores**: Siempre especifica los niveles y el orden si es relevante para tu análisis.
+- **Consistencia en los datos**: Asegúrate de que los datos categóricos estén estandarizados (por ejemplo, evitar "Si" y "sí" como niveles diferentes).
+- **Comentarios y documentación**: Añade comentarios a tu código para mejorar la legibilidad y mantenimiento.
+
+---

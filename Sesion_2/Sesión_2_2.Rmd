@@ -1,0 +1,243 @@
+---
+title: "Manipulación de Datos con Base R"
+author: "Ricardo Macías Bohórquez"
+date: "`r format(Sys.Date(), '%d de %B de %Y')`"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    theme: cosmo
+    highlight: kate
+    code_folding: hide
+---
+
+# Manipulación de Datos con Base R
+
+En esta clase, aprenderemos las herramientas básicas para manipular datos en R utilizando funciones nativas de R sin la necesidad de paquetes adicionales. Exploraremos cómo seleccionar subconjuntos de datos, ordenar datos, crear nuevas variables y recodificar datos.
+
+---
+
+## 1. Subconjuntos y Filtrado
+
+### 1.1 Uso de corchetes `[]`
+
+Los corchetes se utilizan en R para acceder a subconjuntos de vectores, matrices y data frames. Se pueden seleccionar filas y columnas basadas en condiciones.
+
+#### Acceso a elementos de un vector
+
+```{r}
+# Crear un vector numérico
+vector_numeros <- c(5, 10, 15, 20, 25)
+print(vector_numeros)
+
+# Seleccionar el primer elemento
+vector_numeros[1]
+
+# Seleccionar el tercer y quinto elemento
+vector_numeros[c(3, 5)]
+
+# Excluir el segundo elemento
+vector_numeros[-2]
+```
+
+#### Acceso a filas y columnas de un data frame
+
+```{r}
+# Crear un data frame de ejemplo
+df <- data.frame(
+  Nombre = c("Juan", "María", "Pedro", "Ana"),
+  Edad = c(23, 25, 30, 28),
+  Ciudad = c("Bogotá", "Medellín", "Cali", "Cartagena")
+)
+print(df)
+
+# Seleccionar la primera fila
+df[1, ]
+
+# Seleccionar la columna "Edad"
+df[, "Edad"]
+
+# Seleccionar la primera fila y la columna "Nombre"
+df[1, "Nombre"]
+```
+
+### 1.2 Función `subset()`
+
+La función `subset()` es útil para seleccionar subconjuntos de un data frame basados en condiciones lógicas.
+
+```{r}
+# Seleccionar las filas donde la edad es mayor de 25 años
+subset(df, Edad > 25)
+
+# Seleccionar las columnas "Nombre" y "Ciudad" donde la edad es menor o igual a 25
+subset(df, Edad <= 25, select = c(Nombre, Ciudad))
+```
+
+---
+
+## 2. Ordenamiento de Datos
+
+### 2.1 Función `sort()`
+
+La función `sort()` ordena vectores de forma ascendente o descendente.
+
+```{r}
+# Ordenar un vector de números
+numeros <- c(3, 5, 1, 4, 2)
+sort(numeros)
+
+# Ordenar en orden descendente
+sort(numeros, decreasing = TRUE)
+```
+
+### 2.2 Función `order()`
+
+La función `order()` devuelve los índices que ordenan los elementos de un vector. Es útil para ordenar data frames por una o más columnas.
+
+```{r}
+# Ordenar el data frame por la columna "Edad"
+df[order(df$Edad), ]
+
+# Ordenar el data frame por "Ciudad" de forma descendente
+df[order(df$Ciudad, decreasing = TRUE), ]
+
+# Ordenar por dos columnas: primero por "Ciudad" y luego por "Edad"
+df[order(df$Ciudad, df$Edad), ]
+```
+
+---
+
+## 3. Transformaciones Básicas
+
+### 3.1 Creación de nuevas variables
+
+Podemos crear nuevas columnas en un data frame asignando valores directamente.
+
+```{r}
+# Crear una nueva columna "Salario" en el data frame
+df$Salario <- c(3000, 3500, 4000, 4500)
+print(df)
+
+# Crear una columna "Salario en dólares" (supongamos que 1 USD = 4000 COP)
+df$SalarioUSD <- df$Salario / 4000
+print(df)
+```
+
+### 3.2 Cálculos basados en otras columnas
+
+```{r}
+# Crear una columna que indique si la persona es mayor de 25 años
+df$Mayor_25 <- ifelse(df$Edad > 25, "Sí", "No")
+print(df)
+```
+
+---
+
+## 4. Recodificación de Datos
+
+### 4.1 Recodificación con `ifelse()`
+
+La función `ifelse()` es útil para recodificar variables en función de condiciones.
+
+```{r}
+# Recodificar la columna "Ciudad" para asignar etiquetas: "Interior" o "Costa"
+df$Region <- ifelse(df$Ciudad %in% c("Bogotá", "Medellín", "Cali"), "Interior", "Costa")
+print(df)
+```
+
+### 4.2 Recodificación con índices
+
+Otra forma de recodificar es utilizando índices.
+
+```{r}
+# Recodificar la columna "Nombre" para cambiar "Pedro" a "Pablo"
+df$Nombre[df$Nombre == "Pedro"] <- "Pablo"
+print(df)
+```
+
+---
+
+## 5. Ejercicios Prácticos
+
+### **Ejercicio 1**: Selección de Subconjuntos
+
+Usa corchetes para seleccionar las filas del data frame `df` donde la columna "Edad" sea mayor de 25 años y la "Ciudad" sea diferente de "Medellín".
+
+```r
+
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```{r}
+# Solución
+df[df$Edad > 25 & df$Ciudad != "Medellín", ]
+```
+
+</details>
+
+---
+
+### **Ejercicio 2**: Ordenar un data frame
+
+Ordena el data frame `df` primero por la columna "Salario" en orden descendente y luego por la columna "Edad" en orden ascendente.
+
+```r
+
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```{r}
+# Solución
+df[order(df$Salario, -df$Edad), ]
+```
+
+</details>
+
+---
+
+### **Ejercicio 3**: Creación de nuevas variables
+
+Crea una nueva columna llamada "Bonificación" en el data frame `df` que sea igual al 10% del salario para las personas mayores de 25 años, y 5% del salario para las personas de 25 años o menos.
+
+```r
+
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```{r}
+# Solución
+df$Bonificacion <- ifelse(df$Edad > 25, df$Salario * 0.10, df$Salario * 0.05)
+print(df)
+```
+
+</details>
+
+---
+
+### **Ejercicio 4**: Recodificación de datos
+
+Recodifica la columna "Edad" en el data frame `df` en tres categorías: "Joven" (Edad <= 25), "Adulto" (26 <= Edad <= 30) y "Mayor" (Edad > 30).
+
+```r
+
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```{r}
+# Solución
+df$Categoria_Edad <- cut(df$Edad, breaks = c(-Inf, 25, 30, Inf), labels = c("Joven", "Adulto", "Mayor"))
+print(df)
+```
+
+</details>
+
+---
