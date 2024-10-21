@@ -1,0 +1,194 @@
+---
+title: "Manejo de Errores y Estructuras de Control Avanzadas en R"
+author: "Ricardo Macías Bohórquez"
+date: "`r format(Sys.Date(), '%d de %B de %Y')`"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    theme: flatly
+    highlight: tango
+    code_folding: hide
+---
+
+# Introducción
+
+En esta sesión, profundizaremos en dos temas avanzados que harán que tu código en R sea más robusto, eficiente y seguro. Estos temas son:
+
+1. **Manejo de Errores**: Cómo asegurarnos de que nuestro código sea capaz de manejar situaciones imprevistas o errores sin interrumpir la ejecución.
+2. **Estructuras de Control Avanzadas**: Alternativas más eficientes y flexibles a las estructuras de control básicas (`if-else`, bucles `for`, etc.).
+
+Vamos a explorar cómo podemos aplicar estos conceptos para mejorar la calidad y robustez de nuestro código en R.
+
+---
+
+## 1. Manejo de Errores en R
+
+Cuando escribimos código, a veces ocurren errores imprevistos. Si no gestionamos esos errores, el código podría interrumpirse de forma abrupta. Sin embargo, R nos proporciona herramientas para **capturar y manejar errores**, lo que permite continuar la ejecución del código o dar respuestas más informativas cuando algo falla.
+
+### 1.1. ¿Qué es el manejo de errores?
+
+El manejo de errores se refiere a la capacidad de un programa para **anticipar errores** y **reaccionar ante ellos de manera controlada**. Un buen manejo de errores permite que nuestro código:
+- No se detenga completamente si ocurre un error.
+- Proporcione mensajes claros para saber qué salió mal.
+- Tome decisiones alternativas si una operación falla.
+
+---
+
+### 1.2. La función `try()`
+
+La función `try()` es útil cuando queremos ejecutar una operación que podría fallar, pero no queremos que el programa se detenga si eso sucede. En su lugar, el error se captura y el flujo del programa continúa.
+
+#### Ejemplo básico de `try()`:
+
+```{r try-basic, echo=TRUE}
+# Intentamos dividir por cero usando try()
+resultado <- try(1 / 0)
+print(resultado)  # No detiene la ejecución del script
+```
+
+En este ejemplo, la operación `1 / 0` genera un error de "división por cero", pero debido a que usamos `try()`, el script no se detiene. `try()` captura el error y sigue con la ejecución.
+
+#### Ejemplo: Aplicando `try()` en operaciones de lectura de archivos
+
+Imaginemos que queremos leer un archivo, pero no estamos seguros si el archivo existe. En este caso, podemos usar `try()` para evitar que el programa falle si el archivo no está presente.
+
+```{r try-file-read, echo=TRUE}
+# Intentamos leer un archivo que no existe
+archivo <- try(read.csv("archivo_inexistente.csv"))
+print("El script continúa a pesar del error")
+```
+
+Aquí, si el archivo no existe, `try()` captura el error y el script sigue ejecutándose. Este enfoque es útil en casos en los que queremos manejar errores de archivos faltantes o operaciones no válidas.
+
+---
+
+### 1.3. La función `tryCatch()`
+
+`tryCatch()` es una herramienta más avanzada que nos permite **especificar cómo queremos manejar diferentes tipos de errores**. Podemos usar `tryCatch()` para ejecutar diferentes bloques de código según el tipo de error que ocurra.
+
+#### Estructura de `tryCatch()`
+
+```r
+resultado <- tryCatch(
+  {
+    # Código que intentamos ejecutar
+  },
+  error = function(e) {
+    # Código que se ejecuta si ocurre un error
+  },
+  warning = function(w) {
+    # Código que se ejecuta si ocurre un warning
+  },
+  finally = {
+    # Código que se ejecuta siempre, ocurra o no un error
+  }
+)
+```
+
+#### Ejemplo: `tryCatch()` con error de división por cero
+
+```{r trycatch-example, echo=TRUE}
+# Intentamos dividir un número por cero, pero manejamos el error con tryCatch()
+resultado <- tryCatch(
+  {
+    10 / 0  # Esta operación generará un error
+  },
+  error = function(e) {
+    print("Error: No se puede dividir por cero")
+  },
+  finally = {
+    print("Este bloque se ejecuta siempre, con o sin error")
+  }
+)
+```
+
+En este ejemplo, cuando intentamos dividir por cero, el bloque `error` se activa, mostrando un mensaje personalizado. Luego, el bloque `finally` se ejecuta sin importar si hubo o no un error.
+
+---
+
+### 1.4. Casos de Uso para `tryCatch()`
+
+- **Lectura de datos**: Si trabajamos con archivos externos, podemos manejar errores en la lectura, como en el caso de archivos corruptos o ausentes.
+- **Conexiones a bases de datos**: En código que requiere conexiones a bases de datos, podemos usar `tryCatch()` para manejar fallas de conexión sin detener la ejecución.
+- **Cálculos complejos**: En cálculos que pueden producir errores debido a entradas inesperadas (como dividir por cero o valores no numéricos), `tryCatch()` ayuda a capturar estos errores y notificar al usuario.
+
+---
+
+## 2. Estructuras de Control Avanzadas
+
+Una vez que dominas estructuras básicas como `if-else` y `for`, puedes empezar a explorar otras formas de control que pueden hacer tu código más eficiente y legible.
+
+### 2.1. Bucle `repeat` y el uso de `break`
+
+El bucle `repeat` en R se utiliza cuando queremos que una operación se repita indefinidamente hasta que se cumpla una condición. La única manera de detener un bucle `repeat` es usando la instrucción `break`.
+
+#### Ejemplo básico de `repeat` y `break`:
+
+```{r repeat-example, echo=TRUE}
+contador <- 1
+
+# El bucle se repite hasta que el contador sea mayor que 5
+repeat {
+  print(paste("Iteración:", contador))
+  contador <- contador + 1
+  
+  if (contador > 5) {
+    break  # Se detiene el bucle
+  }
+}
+```
+
+En este ejemplo, el bucle `repeat` se ejecuta indefinidamente hasta que el contador alcance el valor de 6, momento en el cual se usa `break` para detener la ejecución.
+
+#### Casos de uso de `repeat`:
+
+- **Simulaciones**: Donde necesitamos repetir un proceso hasta que se alcance una condición específica.
+- **Procesos interactivos**: Como la validación de entradas de usuario, que debe repetirse hasta que el usuario proporcione un valor válido.
+
+---
+
+## 3. Ejercicios Prácticos
+
+### **Ejercicio 1**: Uso de `tryCatch` en operaciones de lectura de archivos
+
+Escribe una función que intente leer un archivo CSV, pero que maneje el error si el archivo no existe usando `tryCatch`.
+
+```r
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```r
+# Definimos la función para leer un archivo con manejo de errores
+leer_archivo_seguro <- function(archivo) {
+  resultado <- tryCatch(
+    {
+      return(read.csv(archivo))  # Intentamos leer el archivo
+    },
+    error = function(e) {
+      return("Error: No se pudo leer el archivo")
+    }
+  )
+  return(resultado)
+}
+
+# Probamos la función
+print(leer_archivo_seguro("archivo_inexistente.csv"))
+```
+
+</details>
+
+---
+
+## 4. Buenas Prácticas
+
+Al trabajar con manejo de errores y estructuras de control avanzadas, sigue estas buenas prácticas:
+
+1. **Maneja los errores con mensajes claros**: Los usuarios deben entender qué salió mal y cómo solucionarlo.
+2. **No abuses de `repeat`**: Asegúrate de que siempre haya una condición de salida para no generar bucles infinitos.
+3. **Prueba tu código con casos límite**: Anticipa los errores más comunes y asegúrate de que tu código los maneje correctamente.
+
+---

@@ -1,0 +1,248 @@
+---
+title: "Estructuras de Control en R: for, while e if"
+author: "Ricardo Macías Bohórquez"
+date: "`r format(Sys.Date(), '%d de %B de %Y')`"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    theme: flatly
+    highlight: tango
+    code_folding: hide
+---
+
+# Introducción a las Estructuras de Control
+
+En esta clase, aprenderemos a usar las estructuras de control en R, específicamente los bucles `for` y `while`, y cómo podemos combinarlos con condicionales `if`. Estas estructuras son esenciales cuando necesitamos repetir acciones o tomar decisiones basadas en condiciones dentro de un bucle.
+
+## 1. Bucle `for`
+
+El bucle `for` nos permite repetir un bloque de código un número específico de veces. Se usa cuando conocemos de antemano cuántas veces queremos ejecutar el bloque.
+
+### Sintaxis básica
+
+```r
+for (variable in secuencia) {
+  # Código que se ejecuta en cada iteración
+}
+```
+
+- **variable**: Es una variable que toma un valor diferente de la secuencia en cada iteración.
+- **secuencia**: Es un rango de valores, como `1:10` o un vector, que define cuántas veces se repetirá el bucle.
+
+### Ejemplo básico
+
+Veamos cómo podemos usar un bucle `for` para imprimir los números del 1 al 5.
+
+```{r for-basico, echo=TRUE}
+# Usamos un bucle for para imprimir números del 1 al 5
+for (i in 1:5) {
+  print(i)
+}
+```
+
+En este caso, `i` toma los valores del 1 al 5, y en cada iteración imprime el valor actual.
+
+---
+
+## 2. Uso de `if` dentro de un bucle `for`
+
+Podemos usar un condicional `if` dentro de un bucle `for` para tomar decisiones en cada iteración. Por ejemplo, podemos imprimir solo los números pares.
+
+### Ejemplo con `if` en `for`
+
+```{r for-if, echo=TRUE}
+# Imprimir solo los números pares del 1 al 10
+for (i in 1:10) {
+  if (i %% 2 == 0) {
+    print(paste(i, "es un número par"))
+  }
+}
+```
+
+Aquí, usamos `if` para verificar si el número es par (`i %% 2 == 0`). Si la condición es verdadera, se imprime que el número es par.
+
+---
+
+## 3. Bucle `while`
+
+El bucle `while` repite un bloque de código mientras una condición sea verdadera. A diferencia de `for`, se usa cuando no sabemos cuántas veces se ejecutará el bucle, solo sabemos que debe continuar mientras una condición sea verdadera.
+
+### Sintaxis básica
+
+```r
+while (condición) {
+  # Código que se ejecuta mientras la condición es verdadera
+}
+```
+
+### Ejemplo básico
+
+Vamos a usar un bucle `while` para contar desde 1 hasta 5.
+
+```{r while-basico, echo=TRUE}
+# Inicializamos una variable
+i <- 1
+
+# Usamos while para contar del 1 al 5
+while (i <= 5) {
+  print(i)
+  i <- i + 1  # Incrementamos i
+}
+```
+
+En este ejemplo, el bucle continúa ejecutándose mientras `i` sea menor o igual a 5.
+
+---
+
+## 4. Uso de `if` dentro de un bucle `while`
+
+Podemos usar `if` dentro de un bucle `while` para tomar decisiones en cada iteración. Por ejemplo, podemos detener el bucle cuando llegamos a un número específico.
+
+### Ejemplo con `if` en `while`
+
+```{r while-if, echo=TRUE}
+# Inicializamos una variable
+i <- 1
+
+# Usamos while y if para detener el bucle cuando i es igual a 3
+while (i <= 5) {
+  if (i == 3) {
+    print("Deteniendo el bucle en 3")
+    break  # Detenemos el bucle
+  }
+  print(i)
+  i <- i + 1  # Incrementamos i
+}
+```
+
+Aquí, usamos `if` para verificar si `i` es igual a 3. Si lo es, imprimimos un mensaje y usamos `break` para salir del bucle.
+
+---
+
+## 5. Ejercicios Prácticos
+
+Vamos a poner en práctica lo que hemos aprendido con `for`, `while` e `if`. Intenta resolver los siguientes ejercicios por tu cuenta.
+
+### **Ejercicio 1**: Suma de los primeros 10 números
+
+Escribe un bucle `for` que calcule la suma de los primeros 10 números.
+
+```r
+
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```r
+# Inicializamos la suma
+suma <- 0
+
+# Usamos un bucle for para sumar los primeros 10 números
+for (i in 1:10) {
+  suma <- suma + i
+}
+
+# Mostramos la suma
+print(suma)
+```
+
+</details>
+
+---
+
+### **Ejercicio 2**: Números divisibles por 3
+
+Escribe un bucle `while` que imprima los números entre 1 y 20 que son divisibles por 3.
+
+```r
+
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```r
+# Inicializamos la variable
+i <- 1
+
+# Usamos while para imprimir números divisibles por 3
+while (i <= 20) {
+  if (i %% 3 == 0) {
+    print(i)
+  }
+  i <- i + 1
+}
+```
+
+</details>
+
+---
+
+### **Ejercicio 3**: Conteo de pares e impares
+
+Escribe un bucle `for` que cuente cuántos números pares e impares hay entre 1 y 50.
+
+```r
+
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```r
+# Inicializamos contadores
+pares <- 0
+impares <- 0
+
+# Usamos un bucle for para contar pares e impares
+for (i in 1:50) {
+  if (i %% 2 == 0) {
+    pares <- pares + 1
+  } else {
+    impares <- impares + 1
+  }
+}
+
+# Mostramos los resultados
+print(paste("Números pares:", pares))
+print(paste("Números impares:", impares))
+```
+
+</details>
+
+---
+
+## 6. Ejercicio Libre
+
+Crea un bucle `while` que permita a un usuario ingresar números hasta que ingrese un número negativo. Luego, calcula la suma de los números ingresados (sin contar el número negativo).
+
+```r
+
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```r
+# Inicializamos la suma
+suma <- 0
+numero <- 0
+
+# Usamos un bucle while para pedir números hasta que el usuario ingrese un número negativo
+while (numero >= 0) {
+  numero <- as.numeric(readline(prompt = "Ingresa un número (negativo para detener): "))
+  if (numero >= 0) {
+    suma <- suma + numero
+  }
+}
+
+# Mostramos la suma
+print(paste("La suma de los números es:", suma))
+```
+
+</details>
+
+---

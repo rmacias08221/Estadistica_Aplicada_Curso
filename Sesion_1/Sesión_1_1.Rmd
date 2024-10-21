@@ -1,0 +1,320 @@
+---
+title: "Introducción a Estructuras Condicionales en R"
+author: "Ricardo Macías Bohórquez"
+date: "`r format(Sys.Date(), '%d de %B de %Y')`"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    theme: flatly
+    highlight: tango
+    code_folding: hide
+---
+
+# Introducción a las Estructuras Condicionales
+
+En esta clase, aprenderemos a usar las **estructuras condicionales** en R, como `if`, `else if`, `else`, y operadores lógicos. Estas estructuras permiten controlar el flujo de un programa, ejecutando diferentes bloques de código en función de si una condición es verdadera o falsa.
+
+## 1. Concepto de `if`
+
+La instrucción `if` evalúa una **condición lógica**. Si dicha condición es verdadera (`TRUE`), el código dentro del bloque `if` se ejecuta; si es falsa, se omite.
+
+### Sintaxis básica
+
+```r
+if (condición) {
+  # Código a ejecutar si la condición es verdadera
+}
+```
+
+### Ejemplo básico
+
+Veamos un ejemplo básico de cómo usar `if`:
+
+```{r if-basico, echo=TRUE}
+# Definimos un número
+numero <- 12
+
+# Usamos la estructura if para comprobar si el número es mayor que 10
+if (numero > 10) {
+  print("El número es mayor que 10")
+}
+```
+
+> **Nota**: El código dentro del `if` solo se ejecutará si la condición `numero > 10` es verdadera. Cambia el valor de `numero` para ver qué sucede si la condición es falsa.
+
+## 2. Uso de `else`
+
+Cuando necesitamos manejar el caso en que la condición no se cumple, usamos `else`. Esto nos permite ejecutar un bloque de código alternativo cuando la condición del `if` es falsa.
+
+### Sintaxis con `else`
+
+```r
+if (condición) {
+  # Código si la condición es verdadera
+} else {
+  # Código si la condición es falsa
+}
+```
+
+### Ejemplo con `else`
+
+```{r if-else, echo=TRUE}
+# Definimos un número
+numero <- 8
+
+# Usamos if con else para evaluar ambas posibilidades
+if (numero > 10) {
+  print("El número es mayor que 10")
+} else {
+  print("El número es menor o igual a 10")
+}
+```
+
+> **Nota**: Cuando la condición no se cumple, el bloque `else` se ejecuta.
+
+## 3. Múltiples Condiciones: `else if`
+
+Cuando necesitamos verificar más de una condición, podemos usar `else if` para manejar múltiples casos.
+
+### Sintaxis con `else if`
+
+```r
+if (condición1) {
+  # Código si la condición1 es verdadera
+} else if (condición2) {
+  # Código si la condición2 es verdadera
+} else {
+  # Código si ninguna de las condiciones anteriores es verdadera
+}
+```
+
+### Ejemplo con `else if`
+
+```{r if-else-if, echo=TRUE}
+# Definimos un número
+numero <- 10
+
+# Usamos if, else if y else para evaluar múltiples condiciones
+if (numero > 10) {
+  print("El número es mayor que 10")
+} else if (numero == 10) {
+  print("El número es igual a 10")
+} else {
+  print("El número es menor que 10")
+}
+```
+
+---
+
+## 4. Operadores Lógicos
+
+Podemos combinar varias condiciones en un solo `if` usando **operadores lógicos**, como `&&` (AND lógico), `||` (OR lógico) y `!` (negación).
+
+## Operador `&&` (AND lógico)
+
+El operador `&&` evalúa como verdadera solo si ambas condiciones son verdaderas.
+
+### Ejemplo con `&&`
+
+```{r operador-and, echo=TRUE}
+# Definimos dos números
+a <- 8
+b <- 12
+
+# Verificamos si ambos números son mayores que 10
+if (a > 10 && b > 10) {
+  print("Ambos números son mayores que 10")
+} else {
+  print("Al menos uno de los números es menor o igual a 10")
+}
+```
+
+## Operador `||` (OR lógico)
+
+El operador `||` evalúa como verdadera si **al menos una** de las condiciones es verdadera.
+
+### Ejemplo con `||`
+
+```{r operador-or, echo=TRUE}
+# Verificamos si al menos uno de los números es mayor que 10
+if (a > 10 || b > 10) {
+  print("Al menos uno de los números es mayor que 10")
+} else {
+  print("Ninguno de los números es mayor que 10")
+}
+```
+
+## Operador `!` (Negación)
+
+El operador `!` niega una condición. Si es verdadera, la convierte en falsa, y viceversa.
+
+### Ejemplo con `!`
+
+```{r operador-not, echo=TRUE}
+# Definimos un valor lógico
+valor_logico <- TRUE
+
+# Usamos el operador de negación
+if (!valor_logico) {
+  print("El valor es falso")
+} else {
+  print("El valor es verdadero")
+}
+```
+
+---
+
+## 5. Condicionales Anidados
+
+Podemos anidar `if` dentro de otros `if` para crear condiciones más complejas.
+
+### Ejemplo de Condiciones Anidadas
+
+```{r condiciones-anidadas, echo=TRUE}
+# Definimos un número
+numero <- 12
+
+# Usamos condiciones anidadas
+if (numero > 0) {
+  if (numero > 10) {
+    print("El número es positivo y mayor que 10")
+  } else {
+    print("El número es positivo pero no mayor que 10")
+  }
+} else if (numero < 0) {
+  print("El número es negativo")
+} else {
+  print("El número es cero")
+}
+```
+
+---
+
+## 6. Ejercicios Prácticos
+
+Ahora es tu turno de poner en práctica lo que has aprendido. Aquí te presentamos algunos ejercicios para que resuelvas.
+
+### **Ejercicio 1**: Verificación de par o impar
+
+Escribe un código que verifique si un número es par o impar usando la estructura `if`.
+
+- **Pista**: Un número es par si el resto de la división por 2 es 0 (`numero %% 2 == 0`).
+
+```r
+
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```r
+# Definimos un número
+numero <- 7
+
+# Verificamos si el número es par o impar
+if (numero %% 2 == 0) {
+  print("El número es par")
+} else {
+  print("El número es impar")
+}
+```
+
+</details>
+
+---
+
+### **Ejercicio 2**: Clasificación por edad
+
+Escribe un código que clasifique a una persona según su edad en:
+- Adolescente (13-19 años)
+- Adulto (20-64 años)
+- Anciano (65+ años)
+
+```r
+
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```r
+# Definimos la edad
+edad <- 45
+
+# Clasificamos según la edad
+if (edad >= 13 && edad <= 19) {
+  print("La persona es un adolescente")
+} else if (edad >= 20 && edad <= 64) {
+  print("La persona es un adulto")
+} else if (edad >= 65) {
+  print("La persona es un anciano")
+} else {
+  print("La persona es un niño")
+}
+```
+
+</details>
+
+---
+
+### **Ejercicio 3**: Uso de operadores lógicos
+
+Escribe un código que verifique si un número está dentro de un rango específico (por ejemplo, entre 5 y 15) usando el operador `&&`.
+
+```r
+
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```r
+# Definimos un número
+numero <- 10
+
+# Verificamos si el número está en el rango de 5 a 15
+if (numero >= 5 && numero <= 15) {
+  print("El número está dentro del rango de 5 a 15")
+} else {
+  print("El número está fuera del rango de 5 a 15")
+}
+```
+
+</details>
+
+---
+
+## 7. Ejercicio Libre
+
+En este último ejercicio, puedes escribir un condicional que utilice al menos un operador lógico `&&` (y), `||` (o), y `!` (pero). Sé creativo y define una situación en la que debas usar todos estos operadores.
+
+```r
+
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```r
+# Definimos las variables
+edad <- 25
+tiene_membresia <- TRUE
+en_lista_restricciones <- FALSE
+
+# Verificamos si puede acceder a la actividad
+if (edad >= 18 && tiene_membresia
+
+ && !en_lista_restricciones) {
+  print("La persona puede acceder a la actividad")
+} else if (edad < 18 || en_lista_restricciones) {
+  print("La persona no puede acceder debido a la edad o estar en la lista de restricciones")
+} else {
+  print("La persona no cumple con los requisitos de membresía")
+}
+```
+
+</details>
+
+---

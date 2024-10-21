@@ -1,0 +1,285 @@
+---
+title: "Estructuras de Control y Funciones en R"
+author: "Ricardo Macías Bohórquez"
+date: "`r format(Sys.Date(), '%d de %B de %Y')`"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    theme: flatly
+    highlight: tango
+    code_folding: hide
+---
+
+# Introducción a Estructuras de Control y Funciones
+
+En esta clase, finalizaremos con el concepto de **funciones** en R, junto con un resumen de las estructuras de control que ya hemos aprendido (`for`, `while`, `if`). Las funciones nos permiten organizar el código, reutilizarlo y hacerlo más modular.
+
+## 1. ¿Qué es una función?
+
+Una función en R es un bloque de código que tiene un propósito específico. Al definir una función, podemos ejecutar ese código varias veces sin tener que reescribirlo. Una función puede aceptar argumentos de entrada (parámetros) y devolver un resultado.
+
+### Sintaxis básica de una función
+
+```r
+nombre_de_la_funcion <- function(argumentos) {
+  # Cuerpo de la función
+  # Código que se ejecuta cuando llamamos a la función
+  return(valor_de_retorno)  # Opcional
+}
+```
+
+- **nombre_de_la_funcion**: Es el nombre con el que llamaremos a la función.
+- **argumentos**: Son los valores que pasamos a la función.
+- **return**: Es opcional. Si no se usa, R devuelve el último valor evaluado en la función.
+
+### Ejemplo básico
+
+Vamos a crear una función que calcule el cuadrado de un número:
+
+```{r funcion-cuadrado, echo=TRUE}
+# Definimos la función para calcular el cuadrado de un número
+cuadrado <- function(x) {
+  return(x^2)
+}
+
+# Llamamos a la función con el número 4
+resultado <- cuadrado(4)
+print(resultado)
+```
+
+Aquí, la función `cuadrado` recibe un número `x` y devuelve su cuadrado. Luego, la llamamos con el valor `4`, y el resultado es `16`.
+
+---
+
+## 2. Funciones con Condicionales
+
+Las funciones pueden incluir condicionales como `if`, para tomar decisiones en función de los argumentos de entrada.
+
+### Ejemplo: Función que clasifica un número
+
+Vamos a crear una función que reciba un número y determine si es positivo, negativo o cero.
+
+```{r funcion-clasificar-numero, echo=TRUE}
+# Definimos la función que clasifica un número
+clasificar_numero <- function(x) {
+  if (x > 0) {
+    return("El número es positivo")
+  } else if (x < 0) {
+    return("El número es negativo")
+  } else {
+    return("El número es cero")
+  }
+}
+
+# Llamamos a la función
+print(clasificar_numero(5))
+print(clasificar_numero(-3))
+print(clasificar_numero(0))
+```
+
+Esta función toma un número como argumento y usa condicionales `if`, `else if`, y `else` para devolver una descripción según el valor del número.
+
+---
+
+## 3. Funciones con Bucles
+
+También podemos incluir bucles dentro de funciones para realizar tareas repetitivas. Vamos a crear una función que calcule la suma de los primeros `n` números naturales.
+
+### Ejemplo: Función para sumar números
+
+```{r funcion-suma, echo=TRUE}
+# Definimos la función que suma los primeros n números
+sumar_numeros <- function(n) {
+  suma <- 0
+  for (i in 1:n) {
+    suma <- suma + i
+  }
+  return(suma)
+}
+
+# Llamamos a la función para sumar los primeros 5 números
+print(sumar_numeros(5))
+```
+
+En este caso, usamos un bucle `for` dentro de la función para sumar los primeros `n` números naturales.
+
+---
+
+## 4. Funciones con Bucles y Condicionales
+
+Ahora, combinaremos condicionales y bucles en una función para hacer algo más complejo. Vamos a crear una función que calcule la suma de todos los números pares hasta `n`.
+
+### Ejemplo: Función que suma números pares
+
+```{r funcion-suma-pares, echo=TRUE}
+# Definimos la función que suma los números pares hasta n
+sumar_pares <- function(n) {
+  suma <- 0
+  for (i in 1:n) {
+    if (i %% 2 == 0) {  # Verificamos si el número es par
+      suma <- suma + i
+    }
+  }
+  return(suma)
+}
+
+# Llamamos a la función para sumar los pares hasta 10
+print(sumar_pares(10))
+```
+
+Esta función suma solo los números pares hasta el valor de `n`, usando un condicional `if` dentro del bucle `for`.
+
+---
+
+## 5. Buenas prácticas al escribir funciones
+
+Al escribir funciones, es importante seguir algunas buenas prácticas que te ayudarán a mantener tu código organizado y fácil de entender:
+
+1. **Nombres claros**: Elige nombres de funciones y variables que describan claramente su propósito.
+2. **Evita la duplicación de código**: Usa funciones cuando tengas que repetir el mismo bloque de código varias veces.
+3. **Documenta tus funciones**: Agrega comentarios y descripciones de lo que hace la función, sus argumentos y su valor de retorno.
+4. **Modulariza tu código**: Divide tu código en funciones más pequeñas que realicen tareas específicas, en lugar de escribir una función muy grande.
+
+---
+
+## 6. Ejercicios Prácticos
+
+### **Ejercicio 1**: Función que determina si un número es par o impar
+
+Escribe una función llamada `es_par` que reciba un número y devuelva `"par"` si el número es par o `"impar"` si el número es impar.
+
+```r
+
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```r
+# Definimos la función es_par
+es_par <- function(x) {
+  if (x %% 2 == 0) {
+    return("par")
+  } else {
+    return("impar")
+  }
+}
+
+# Probamos la función
+print(es_par(4))
+print(es_par(7))
+```
+
+</details>
+
+---
+
+### **Ejercicio 2**: Función que calcula el factorial de un número
+
+Escribe una función llamada `factorial` que calcule el factorial de un número `n`. El factorial de `n` es el producto de todos los enteros desde `1` hasta `n` (`n! = n * (n-1) * ... * 1`).
+
+```r
+
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```r
+# Definimos la función factorial
+factorial <- function(n) {
+  resultado <- 1
+  for (i in 1:n) {
+    resultado <- resultado * i
+  }
+  return(resultado)
+}
+
+# Probamos la función
+print(factorial(5))  # 5! = 5*4*3*2*1 = 120
+```
+
+</details>
+
+---
+
+### **Ejercicio 3**: Función que cuenta los números pares e impares
+
+Escribe una función llamada `contar_pares_impares` que reciba un vector de números y cuente cuántos son pares y cuántos son impares. La función debe devolver un mensaje con ambos resultados.
+
+```r
+
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```r
+# Definimos la función contar_pares_impares
+contar_pares_impares <- function(numeros) {
+  pares <- 0
+  impares <- 0
+  
+  for (n in numeros) {
+    if (n %% 2 == 0) {
+      pares <- pares + 1
+    } else {
+      impares <- impares + 1
+    }
+  }
+  
+  return(paste("Pares:", pares, "Impares:", impares))
+}
+
+# Probamos la función
+numeros <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+print(contar_pares_impares(numeros))
+```
+
+</details>
+
+---
+
+## 7. Ejercicio Libre
+
+Escribe una función que reciba un número y una lista de operaciones matemáticas (como suma, resta, multiplicación) y aplique esas operaciones al número. Usa un bucle y condicionales dentro de la función.
+
+```r
+
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```r
+# Definimos la función que aplica operaciones matemáticas a un número
+aplicar_operaciones <- function(numero, operaciones) {
+  resultado <- numero
+  
+  for (operacion in operaciones) {
+    if (operacion == "suma") {
+      resultado <- resultado + numero
+    } else if (operacion ==
+
+ "resta") {
+      resultado <- resultado - numero
+    } else if (operacion == "multiplicacion") {
+      resultado <- resultado * numero
+    } else if (operacion == "division" && numero != 0) {
+      resultado <- resultado / numero
+    }
+  }
+  
+  return(resultado)
+}
+
+# Probamos la función
+operaciones <- c("suma", "multiplicacion")
+print(aplicar_operaciones(5, operaciones))  # (5 + 5) * 5 = 50
+```
+
+</details>
+
+---
