@@ -41,13 +41,13 @@ Este curso está diseñado para introducir a los participantes en conceptos esen
    - Fundamentos de la regresión logística para modelar variables categóricas.
    - Aplicación de modelos logísticos para clasificar y predecir categorías.
 
-10. **Análisis Multivariado: Modelamiento de Preferencias**
+10. **Análisis Multivariado**
     - Técnicas de análisis multivariado, como análisis factorial y modelos de elección.
-    - Modelamiento de preferencias y toma de decisiones basada en datos.
+    - Clusterizacion y agrupamiento de individuos.
 
 ## **Requisitos previos**
 - Conocimientos básicos en programación o familiaridad con algún lenguaje de programación.
 - Nociones fundamentales de estadística descriptiva e inferencia estadística.
 
 ## **Duración del curso**
-Este curso tiene una duración estimada de **20 horas** (personaliza según sea necesario).
+Este curso tiene una duración estimada de **20 horas**.
