@@ -1,0 +1,195 @@
+---
+title: "Análisis Estadístico con `psych` y Visualización con Factores"
+author: "Ricardo Macías Bohórquez"
+date: "`r format(Sys.Date(), '%d de %B de %Y')`"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    theme: cosmo
+    highlight: kate
+    code_folding: hide
+---
+
+# Análisis Estadístico con `psych` y Visualización con Factores
+
+En este análisis, realizaremos una exploración estadística más profunda del conjunto de datos `mtcars` utilizando la librería **`psych`**, y aprenderemos a generar visualizaciones avanzadas, incluyendo **boxplots** con múltiples factores.
+
+---
+
+## 1. Exploración de Datos con `psych`
+
+### 1.1 Cargar las librerías necesarias
+
+```{r}
+# Instalar y cargar las librerías necesarias
+# install.packages("psych")
+# install.packages("ggplot2")
+# install.packages("data.table")
+
+library(data.table)
+library(psych)
+library(ggplot2)
+```
+
+### 1.2 Cargar el conjunto de datos `mtcars`
+
+```{r}
+# Convertir mtcars a data.table
+dt_mtcars <- as.data.table(mtcars)
+```
+
+---
+
+## 2. Análisis Estadístico con `psych`
+
+### 2.1 Descripción de los datos con `describe()`
+
+La función `describe()` de `psych` proporciona una descripción detallada de cada variable, incluyendo medidas de centralidad (media, mediana), dispersión (desviación estándar), asimetría, curtosis, entre otras.
+
+```{r}
+# Describir las variables de mtcars
+descripcion_mtcars <- describe(dt_mtcars)
+print(descripcion_mtcars)
+```
+
+**Explicación**: La función `describe()` proporciona información detallada sobre las variables del conjunto de datos, como:
+- **Media** (mean): Promedio de la variable.
+- **Desviación estándar** (sd): Dispersión de los datos.
+- **Asimetría** (skew): Mide la simetría de la distribución.
+- **Curtosis** (kurtosis): Mide el grado de concentración de los valores en los extremos de la distribución.
+
+---
+
+## 3. Análisis de Correlación Avanzado
+
+https://www.guessthecorrelation.com/
+
+### 3.1 Calcular la matriz de correlación con significancia
+
+Podemos usar `corr.test()` de `psych` para obtener la matriz de correlación junto con los valores de significancia (p-value).
+
+```{r}
+# Calcular la matriz de correlación con p-valores
+correlacion_significancia <- corr.test(dt_mtcars[, .(mpg, hp, wt, qsec)])
+print(correlacion_significancia$r)  # Matriz de correlación
+print(correlacion_significancia$p)  # Matriz de p-valores
+```
+
+**Explicación**: 
+- **Matriz de correlación**: Muestra la fuerza y dirección de la relación entre las variables.
+- **Matriz de p-valores**: Indica si la correlación es significativa. Generalmente, si el p-valor es menor a 0.05, la correlación es estadísticamente significativa.
+
+---
+
+## 4. Visualización con Boxplots y Factores
+
+### 4.1 Comparar la distribución de `mpg` con múltiples factores
+
+Podemos generar un **boxplot** que compare la variable `mpg` (millas por galón) en función de múltiples factores como el número de **cilindros** (`cyl`) y el tipo de **transmisión** (`am`).
+
+```{r}
+# Crear un boxplot de mpg según el número de cilindros y transmisión
+ggplot(dt_mtcars, aes(x = factor(cyl), y = mpg, fill = factor(am))) +
+  geom_boxplot() +
+  labs(title = "Millas por Galón según Cilindros y Transmisión", 
+       x = "Número de Cilindros", 
+       y = "Millas por Galón (mpg)", 
+       fill = "Transmisión (0 = Automática, 1 = Manual)") +
+  theme_minimal()
+```
+
+**Explicación**: Este boxplot nos permite comparar la eficiencia de combustible (`mpg`) entre autos con diferente número de cilindros (`cyl`) y diferentes tipos de transmisión (`am`). Podemos observar las diferencias en las distribuciones y posibles valores atípicos dentro de cada grupo.
+
+---
+
+### 4.2 Violinplots: Comparación con factores
+
+Un **violinplot** combina un boxplot con una representación de la distribución de los datos. Vamos a comparar la variable `mpg` con dos factores: número de **cilindros** (`cyl`) y transmisión (`am`).
+
+```{r}
+# Crear un violinplot para mpg con factores
+ggplot(dt_mtcars, aes(x = factor(cyl), y = mpg, fill = factor(am))) +
+  geom_violin(trim = FALSE) +
+  geom_boxplot(width = 0.1, fill = "white", color = "black") +
+  labs(title = "Violinplot: Millas por Galón según Cilindros y Transmisión", 
+       x = "Número de Cilindros", 
+       y = "Millas por Galón (mpg)", 
+       fill = "Transmisión (0 = Automática, 1 = Manual)") +
+  theme_minimal()
+```
+
+**Explicación**: El violinplot muestra la densidad de los datos para cada combinación de cilindros y tipo de transmisión. Combina la información de un boxplot con una representación más rica de la distribución.
+
+---
+
+## 5. Análisis Factorial con Boxplots para 3 Factores
+
+### 5.1 Comparar la distribución de `mpg` en función de tres factores
+
+Para realizar una comparación más avanzada, generaremos un boxplot que muestre la variable `mpg` en función de tres factores: número de **cilindros** (`cyl`), **transmisión** (`am`), y el número de **marchas** (`gear`).
+
+```{r}
+# Crear un boxplot de mpg según cilindros, transmisión y marchas
+ggplot(dt_mtcars, aes(x = interaction(cyl, am, gear), y = mpg, fill = factor(am))) +
+  geom_boxplot() +
+  labs(title = "Millas por Galón según Cilindros, Transmisión y Marchas", 
+       x = "Cilindros - Transmisión - Marchas", 
+       y = "Millas por Galón (mpg)", 
+       fill = "Transmisión (0 = Automática, 1 = Manual)") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+**Explicación**: Este gráfico combina tres factores: el número de cilindros, el tipo de transmisión, y el número de marchas. Nos permite explorar cómo estos tres factores interactúan para influir en la eficiencia de combustible (mpg).
+
+---
+
+## 6. Ejercicios Prácticos
+
+### **Ejercicio 1**: Realizar un análisis factorial
+
+Utiliza la función `describe()` de `psych` para describir la variable `hp` en función de los factores `cyl` y `am`.
+
+```{r}
+# Tu código aquí
+
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```{r}
+# Solución
+describeBy(dt_mtcars$hp, group = list(dt_mtcars$cyl, dt_mtcars$am))
+```
+
+</details>
+
+---
+
+### **Ejercicio 2**: Crear un violinplot
+
+Crea un violinplot que compare la variable `hp` (caballos de fuerza) según el número de cilindros (`cyl`) y el número de marchas (`gear`).
+
+```{r}
+# Tu código aquí
+
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```{r}
+# Solución
+ggplot(dt_mtcars, aes(x = factor(cyl), y = hp, fill = factor(gear))) +
+  geom_violin(trim = FALSE) +
+  geom_boxplot(width = 0.1, fill = "white", color = "black") +
+  labs(title = "Violinplot: Caballos de Fuerza según Cilindros y Marchas", 
+       x = "Número de Cilindros", 
+       y = "Caballos de Fuerza (hp)", 
+       fill = "Marchas") +
+  theme_minimal()
+```
+

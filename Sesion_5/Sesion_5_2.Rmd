@@ -1,0 +1,331 @@
+---
+title: "ANOVA: Análisis de Varianza"
+author: "Ricardo Macías Bohórquez"
+date: "`r format(Sys.Date(), '%d de %B de %Y')`"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    theme: cosmo
+    highlight: kate
+    code_folding: hide
+---
+
+# ANOVA: Análisis de Varianza
+
+En este documento, aprenderemos a realizar **ANOVA** (Análisis de Varianza) para probar si existen diferencias significativas entre las medias de más de dos grupos. Exploraremos:
+- **ANOVA de una vía**: Comparación entre más de dos grupos independientes.
+- **ANOVA de dos vías**: Comparación de dos factores independientes.
+- **ANOVA de medidas repetidas**: Comparación de múltiples mediciones en los mismos individuos.
+
+---
+
+## 1. Conceptos Fundamentales
+
+### 1.1 ¿Qué es ANOVA?
+
+**ANOVA (Análisis de Varianza)** es una técnica estadística que permite comparar las medias de varios grupos y determinar si existen diferencias significativas entre ellas. Se utiliza cuando:
+- Las variables son **cuantitativas**.
+- Existen **más de dos grupos** que se desea comparar.
+- Se cumplen los **supuestos de normalidad** y **homogeneidad de varianzas**.
+
+### 1.2 Hipótesis en ANOVA
+
+Cada ANOVA tiene dos hipótesis:
+- **Hipótesis nula (H0)**: No existen diferencias significativas entre las medias de los grupos.
+- **Hipótesis alternativa (H1)**: Al menos una media es significativamente diferente a las demás.
+
+### 1.3 Supuestos de ANOVA
+1. **Normalidad**: Las distribuciones de los grupos deben ser normales.
+2. **Independencia**: Las observaciones dentro de cada grupo deben ser independientes.
+3. **Homogeneidad de varianzas**: Las varianzas entre los grupos deben ser similares (se verifica con la prueba de Levene).
+
+---
+
+## 2. ANOVA de Una Vía
+
+### 2.1 Explicación
+
+El **ANOVA de una vía** se utiliza para comparar las medias de más de dos grupos independientes en un solo factor. Este método evalúa si las diferencias entre las medias de los grupos son mayores de lo que esperaríamos debido al azar.
+
+#### **Hipótesis**:
+- **H0**: Las medias de todos los grupos son iguales.
+- **H1**: Al menos una media es significativamente diferente.
+
+### 2.2 Ejemplo: Comparar `mpg` (Millas por Galón) entre autos con diferente número de cilindros (`cyl`) en `mtcars`
+
+#### 1. Cargar los datos
+
+```{r}
+# Cargar la base de datos mtcars
+data(mtcars)
+# Convertir la variable cyl a factor
+mtcars$cyl <- factor(mtcars$cyl)
+```
+
+#### 2. Realizar el ANOVA de una vía
+
+```{r}
+# Realizar el ANOVA de una vía
+anova_unavia <- aov(mpg ~ cyl, data = mtcars)
+
+# Mostrar el resumen del ANOVA
+summary(anova_unavia)
+```
+
+**Resultados:**
+
+```r
+             Df Sum Sq Mean Sq F value   Pr(>F)    
+cyl          2  824.8   412.4    39.7 4.98e-09 ***
+Residuals   29  301.3    10.4                     
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+```
+
+### 2.3 Interpretación de la salida
+
+El ANOVA genera un **p-value**. Si **p < 0.05**, podemos rechazar la hipótesis nula y concluir que hay diferencias significativas entre las medias de los grupos.
+
+- **F-value**: Es la razón de la variabilidad entre grupos frente a la variabilidad dentro de los grupos. Un valor alto indica que las diferencias entre las medias son grandes en comparación con las diferencias dentro de los grupos.
+- **Pr(>F)**: Es el p-value. Si es menor a 0.05, concluimos que al menos un grupo tiene una media significativamente diferente.
+
+#### 3. Verificar homogeneidad de varianzas
+
+```{r}
+# Realizar la prueba de Levene para verificar homogeneidad de varianzas
+library(car)
+leveneTest(mpg ~ cyl, data = mtcars)
+```
+
+**Resultados de Levene:**
+
+```r
+Levene's Test for Homogeneity of Variance (center = median)
+      Df F value  Pr(>F)   
+group  2  5.5071 0.00939 **
+      29                   
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+```
+
+Dado que el p-value es menor a 0.05, se podría argumentar que las varianzas no son homogéneas, por lo que debemos ser cautelosos con las conclusiones.
+
+#### 4. Realizar un post hoc (Tukey) para comparar pares de medias
+
+```{r}
+# Realizar prueba post hoc de Tukey
+TukeyHSD(anova_unavia)
+```
+
+**Resultados de Tukey:**
+
+```r
+Tukey multiple comparisons of means
+    95% family-wise confidence level
+
+Fit: aov(formula = mpg ~ cyl, data = mtcars)
+
+$cyl
+          diff        lwr        upr     p adj
+6-4  -6.920779 -10.769350 -3.0722086 0.0003424
+8-4 -11.563636 -14.770779 -8.3564942 0.0000000
+8-6  -4.642857  -8.327583 -0.9581313 0.0112287
+```
+
+### Interpretación del Tukey:
+
+- **6-4**: Los autos con 6 cilindros tienen un `mpg` significativamente menor en comparación con los autos de 4 cilindros.
+- **8-4**: Los autos con 8 cilindros tienen un `mpg` significativamente menor en comparación con los autos de 4 cilindros.
+- **8-6**: También hay una diferencia significativa entre autos de 8 y 6 cilindros.
+
+---
+
+## 3. ANOVA de Dos Vías
+
+### 3.1 Explicación
+
+El **ANOVA de dos vías** permite estudiar el efecto de dos factores (variables independientes) en una variable de respuesta (dependiente). También evalúa si hay interacción entre los factores.
+
+#### **Hipótesis**:
+- **H0**: No hay diferencias significativas en las medias de los grupos para ambos factores.
+- **H1**: Hay diferencias significativas en al menos un factor o una interacción entre ambos.
+
+### 3.2 Ejemplo: Comparar `mpg` en función de `cyl` (número de cilindros) y `am` (tipo de transmisión) en `mtcars`
+
+#### 1. Convertir variables
+
+```{r}
+# Convertir 'am' a factor (transmisión)
+mtcars$am <- factor(mtcars$am, labels = c("Automática", "Manual"))
+```
+
+#### 2. Realizar el ANOVA de dos vías
+
+```{r}
+# Realizar el ANOVA de dos vías
+anova_dosvias <- aov(mpg ~ cyl * am, data = mtcars)
+
+# Mostrar el resumen del ANOVA
+summary(anova_dosvias)
+```
+
+**Resultados:**
+
+```r
+            Df Sum Sq Mean Sq F value   Pr(>F)    
+cyl          2  824.8   412.4  44.852 3.73e-09 ***
+am           1   36.8    36.8   3.999   0.0561 .  
+cyl:am       2   25.4    12.7   1.383   0.2686    
+Residuals   26  239.1     9.2                     
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+```
+
+### 3.3 Interpretación de la salida
+
+En un ANOVA de dos vías se analizan:
+- **Efecto principal de `cyl`**: El p-value es extremadamente bajo (3.73e-09), lo que indica que hay diferencias significativas en `mpg` entre los diferentes números de cilindros.
+- **Efecto principal de `am`**: El p-value es 0.0561, lo que indica que el efecto del tipo de transmisión es marginalmente significativo.
+- **Interacción `cyl:
+
+am`**: El p-value es 0.2686, lo que indica que no hay una interacción significativa entre el número de cilindros y el tipo de transmisión.
+
+#### 4. Visualizar las interacciones
+
+```{r}
+# Crear una gráfica de interacción
+interaction.plot(mtcars$cyl, mtcars$am, mtcars$mpg, 
+                 col = c("blue", "red"), 
+                 lty = 1, 
+                 main = "Interacción entre Cilindros y Transmisión en el Consumo de Combustible")
+```
+
+---
+
+## 4. ANOVA de Medidas Repetidas
+
+### 4.1 Explicación
+
+El **ANOVA de medidas repetidas** se utiliza cuando se toman varias mediciones sobre los mismos sujetos. Este análisis es útil para estudiar cómo cambia la variable dependiente a lo largo del tiempo o bajo diferentes condiciones.
+
+#### **Hipótesis**:
+- **H0**: No hay diferencias significativas entre las mediciones repetidas.
+- **H1**: Hay diferencias significativas entre las mediciones.
+
+### 4.2 Ejemplo: Simulación de un experimento con mediciones repetidas
+
+#### 1. Simular un conjunto de datos de medidas repetidas
+
+```{r}
+# Simular datos de tres mediciones en 10 sujetos
+set.seed(123)
+sujetos <- factor(rep(1:10, each = 3))
+medicion <- factor(rep(c("Tiempo1", "Tiempo2", "Tiempo3"), times = 10))
+valor <- rnorm(30, mean = rep(c(80, 85, 88), each = 10), sd = 5)
+
+# Crear un data.frame
+df_repetidas <- data.frame(sujetos, medicion, valor)
+
+# Visualizar las primeras filas
+head(df_repetidas)
+```
+
+#### 2. Realizar el ANOVA de medidas repetidas
+
+```{r}
+# Realizar ANOVA de medidas repetidas
+anova_medidas_repetidas <- aov(valor ~ medicion + Error(sujetos/medicion), data = df_repetidas)
+
+# Mostrar el resumen del ANOVA
+summary(anova_medidas_repetidas)
+```
+
+**Resultados:**
+
+```r
+Error: sujetos
+          Df Sum Sq Mean Sq F value Pr(>F)
+Residuals  9  233.3   25.92               
+
+Error: sujetos:medicion
+          Df Sum Sq Mean Sq F value Pr(>F)
+medicion   2   40.1   20.06   0.626  0.546
+Residuals 18  576.9   32.05               
+```
+
+### 4.3 Interpretación de la salida
+
+En el ANOVA de medidas repetidas, observamos que el **p-value de 0.546** indica que no hay diferencias significativas entre las mediciones en los tres tiempos.
+
+#### 3. Gráfico de las medias en las diferentes mediciones
+
+```{r}
+library(ggplot2)
+# Gráfico mejorado de medias por tiempo
+ggplot(df_repetidas, aes(x = medicion, y = valor, group = 1)) +
+  stat_summary(fun = mean, geom = "line", color = "blue", size = 1.5) +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.2, color = "blue") +
+  labs(title = "Evolución de los valores promedio en el tiempo", x = "Medición", y = "Valor promedio") +
+  theme_minimal()
+```
+
+Este gráfico muestra cómo cambian las **medias de los valores** a lo largo de los tres tiempos de medición.
+
+---
+
+## 5. Ejercicios Prácticos
+
+### **Ejercicio 1**: ANOVA de Una Vía
+
+Utiliza la base de datos `iris` para comparar la longitud del sépalo (`Sepal.Length`) entre las tres especies de flores.
+
+```{r}
+# Realizar ANOVA de una vía con iris
+anova_iris <- aov(Sepal.Length ~ Species, data = iris)
+
+# Mostrar el resumen del ANOVA
+summary(anova_iris)
+```
+
+---
+
+### **Ejercicio 2**: ANOVA de Dos Vías
+
+Compara la variable `Petal.Width` en `iris` en función de las especies (`Species`) y la longitud del sépalo categorizada (`Sepal.Length` alta y baja).
+
+```{r}
+# Categorizar la longitud del sépalo
+iris$SepalCat <- ifelse(iris$Sepal.Length > median(iris$Sepal.Length), "Alta", "Baja")
+
+# Realizar ANOVA de dos vías
+anova_dosvias_iris <- aov(Petal.Width ~ Species * SepalCat, data = iris)
+
+# Mostrar el resumen del ANOVA
+summary(anova_dosvias_iris)
+```
+
+---
+
+### **Ejercicio 3**: ANOVA de Medidas Repetidas
+
+Simula datos de 5 sujetos con 4 mediciones y realiza un ANOVA de medidas repetidas.
+
+```{r}
+# Simular datos
+set.seed(123)
+sujetos <- factor(rep(1:5, each = 4))
+medicion <- factor(rep(c("Pre", "Post1", "Post2", "Post3"), times = 5))
+valor <- rnorm(20, mean = rep(c(80, 85, 88, 90), each = 5), sd = 3)
+
+# Crear el data.frame
+df_pareadas <- data.frame(sujetos, medicion, valor)
+
+# Realizar ANOVA de medidas repetidas
+anova_pareadas <- aov(valor ~ medicion + Error(sujetos/medicion), data = df_pareadas)
+
+# Mostrar el resumen del ANOVA
+summary(anova_pareadas)
+```
+

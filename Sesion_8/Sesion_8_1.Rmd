@@ -1,0 +1,193 @@
+---
+title: "Regresión Logística"
+author: "Ricardo Macías Bohórquez"
+date: "`r format(Sys.Date(), '%d de %B de %Y')`"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    theme: cosmo
+    highlight: kate
+    code_folding: hide
+---
+
+# Regresión Logística
+
+En este documento, exploraremos la **regresión logística** como una técnica estadística utilizada para modelar la probabilidad de que un evento ocurra o no. En particular, estudiaremos la **regresión logística binaria**, que es apropiada para predecir una variable dependiente dicotómica (con dos categorías).
+
+---
+
+## 1. Conceptos Fundamentales
+
+### 1.1 ¿Qué es la Regresión Logística?
+
+La **regresión logística** es una técnica estadística utilizada para modelar la relación entre una variable dependiente binaria (dicotómica) y una o más variables independientes. A diferencia de la regresión lineal, que predice un valor continuo, la regresión logística predice la **probabilidad** de que ocurra un evento determinado.
+
+La fórmula de la regresión logística es:
+
+\[ \text{logit}(P) = \log \left( \frac{P}{1 - P} \right) = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \ldots + \beta_n X_n \]
+
+Donde:
+- **P** es la probabilidad de que ocurra el evento (es decir, que la variable dependiente sea 1).
+- **\beta_0** es el intercepto.
+- **\beta_1, \beta_2, \ldots, \beta_n** son los coeficientes asociados a las variables independientes.
+- **X_1, X_2, \ldots, X_n** son las variables independientes.
+
+### 1.2 Supuestos de la Regresión Logística
+1. **Dependiente binaria**: La variable dependiente es dicotómica (0 o 1).
+2. **Independencia**: Las observaciones son independientes entre sí.
+3. **Linealidad en la forma logit**: Aunque no se espera una relación lineal entre las variables independientes y la variable dependiente, se asume que existe una relación lineal entre las variables independientes y el logit de la variable dependiente.
+
+---
+
+## 2. Regresión Logística Binaria
+
+### 2.1 Explicación
+
+La **regresión logística binaria** se utiliza cuando la variable dependiente tiene solo dos posibles valores, como 0 y 1. Por ejemplo, podríamos estar interesados en predecir si un paciente tiene una enfermedad (1) o no (0) en función de variables como la edad, el sexo, el peso, etc.
+
+### 2.2 Ejemplo: Predecir el tipo de transmisión (`am`) en función del peso (`wt`) y la potencia (`hp`) en `mtcars`
+
+#### 1. Cargar los datos
+
+```{r}
+# Cargar la base de datos mtcars
+data(mtcars)
+
+# Convertir la variable 'am' a factor (transmisión automática o manual)
+mtcars$am <- factor(mtcars$am, levels = c(0, 1), labels = c("Automática", "Manual"))
+
+# Visualizar las primeras filas
+head(mtcars)
+```
+
+#### 2. Ajustar el modelo de regresión logística
+
+```{r}
+# Ajustar el modelo de regresión logística binaria
+modelo_logit <- glm(am ~ wt + hp, data = mtcars, family = binomial)
+
+# Mostrar el resumen del modelo
+summary(modelo_logit)
+```
+
+### 2.3 Interpretación de los resultados
+
+- **Intercepto (\(\beta_0\))**: El intercepto (18.87) es el logit de la probabilidad de que la transmisión sea manual cuando el peso y la potencia son 0, aunque este valor es teórico y no tiene sentido práctico.
+- **Coeficiente de `wt` (-8.08)**: Por cada aumento de 1000 libras en el peso del vehículo, la probabilidad de que tenga transmisión manual disminuye considerablemente.
+- **Coeficiente de `hp` (0.036)**: Por cada unidad adicional de potencia, la probabilidad de tener transmisión manual aumenta ligeramente.
+- **p-values**: Los p-values asociados a ambas variables independientes son menores a 0.05, lo que sugiere que tanto el peso como la potencia tienen un efecto significativo en la probabilidad de que la transmisión sea manual.
+
+#### 3. Expresar los coeficientes en términos de odds-ratios
+
+```{r}
+# Calcular los odds ratios
+exp(coef(modelo_logit))
+```
+
+Los **odds-ratios** muestran que:
+- A medida que el peso aumenta, la probabilidad de tener transmisión manual disminuye, ya que el odds-ratio asociado a `wt` es menor a 1.
+- Por cada unidad adicional en la potencia (`hp`), la probabilidad de tener transmisión manual aumenta en un 3.69%.
+
+---
+
+## 3. Verificación del Modelo
+
+### 3.1 Evaluar el ajuste del modelo
+
+#### 1. Pseudo-R2
+
+La regresión logística no tiene un R-cuadrado tradicional, pero se puede usar el **Pseudo-R2** de McFadden para evaluar el ajuste del modelo.
+
+```{r}
+# Calcular el Pseudo-R2
+library(pscl)
+pR2(modelo_logit)
+```
+
+Un Pseudo-R2 de 0.767 indica un buen ajuste del modelo.
+
+#### 2. Matriz de confusión
+
+La **matriz de confusión** compara los valores predichos por el modelo con los valores observados:
+
+```{r}
+# Predecir las probabilidades
+predicciones <- predict(modelo_logit, type = "response")
+
+# Convertir probabilidades a clases (0 o 1)
+pred_clases <- ifelse(predicciones > 0.5, "Manual", "Automática")
+
+# Crear la matriz de confusión
+table(Predicho = pred_clases, Observado = mtcars$am)
+```
+
+El modelo predice correctamente 18 automóviles con transmisión automática y 12 con transmisión manual, con solo 2 errores.
+
+### 3.2 Curva ROC y AUC
+
+La **curva ROC** mide el rendimiento del modelo para diferentes umbrales de clasificación, mientras que el **AUC** mide el área bajo la curva:
+
+```{r}
+library(pROC)
+
+# Crear la curva ROC
+roc_obj <- roc(mtcars$am, predicciones)
+
+# Graficar la curva ROC
+plot(roc_obj, col = "blue", main = "Curva ROC")
+
+# Calcular el AUC
+auc(roc_obj)
+```
+
+El **AUC** obtenido es de 0.9838, lo que indica que el modelo tiene un rendimiento de clasificación excelente.
+
+---
+
+## 4. Ejercicios Prácticos
+
+### **Ejercicio 1**: Regresión logística binaria
+
+Usa el conjunto de datos `iris` para predecir si una flor es de la especie `virginica` (1) o no (0) en función de las variables `Sepal.Length` y `Petal.Length`.
+
+```{r}
+# Crear la variable dependiente binaria
+iris$virginica <- ifelse(iris$Species == "virginica", 1, 0)
+
+# Ajustar el modelo de regresión logística
+modelo_iris_logit <- glm(virginica ~ Sepal.Length + Petal.Length, data = iris, family = binomial)
+
+# Mostrar el resumen del modelo
+summary(modelo_iris_logit)
+```
+
+### **Ejercicio 2**: Evaluar el rendimiento del modelo
+
+Construye la matriz de confusión y calcula el AUC para el modelo ajustado en `iris`.
+
+```{r}
+# Tu código aquí
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```{r}
+# Predecir las probabilidades
+predicciones_iris <- predict(modelo_iris_logit, type = "response")
+
+# Convertir probabilidades a clases (0 o 1)
+pred_clases_iris <- ifelse(predicciones_iris > 0.5, 1, 0)
+
+# Crear la matriz de confusión
+table(Predicho = pred_clases_iris, Observado = iris$virginica)
+
+# Crear la curva ROC y calcular el AUC
+roc_obj_iris <- roc(iris$virginica, predicciones_iris)
+plot(roc_obj_iris, col = "blue", main = "Curva ROC")
+auc(roc_obj_iris)
+```
+
+</details>

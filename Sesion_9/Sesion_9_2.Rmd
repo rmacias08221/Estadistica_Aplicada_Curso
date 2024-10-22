@@ -1,0 +1,288 @@
+---
+title: "Análisis de Clusterización"
+author: "Ricardo Macías Bohórquez"
+date: "`r format(Sys.Date(), '%d de %B de %Y')`"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    theme: cosmo
+    highlight: kate
+    code_folding: hide
+---
+
+# Análisis de Clusterización
+
+En este documento, aprenderemos a realizar **análisis de clustering (agrupamiento)** para identificar grupos o patrones ocultos en los datos. Exploraremos los siguientes métodos:
+- **K-means**: Un algoritmo de clustering basado en particiones.
+- **Clustering Jerárquico**: Un método que organiza los datos en una jerarquía de clusters.
+- **DBSCAN**: Un método basado en densidad que identifica clusters en regiones densamente pobladas.
+
+---
+
+## 1. Conceptos Fundamentales
+
+### 1.1 ¿Qué es el Clustering?
+
+El **clustering** es una técnica de análisis multivariado que tiene como objetivo dividir un conjunto de datos en grupos (clusters) basados en la similitud de sus observaciones. Las observaciones dentro de un grupo son similares entre sí y diferentes de las observaciones en otros grupos.
+
+Existen varios métodos de clustering, cada uno con diferentes enfoques para encontrar patrones en los datos.
+
+---
+
+## 2. K-means Clustering
+
+### 2.1 Explicación
+
+El **K-means** es uno de los métodos de clustering más comunes. Su objetivo es particionar un conjunto de datos en **K** clusters, minimizando la distancia dentro de cada cluster y maximizando la distancia entre clusters.
+
+#### **Objetivo**:
+- Minimizar la suma de las distancias cuadradas entre las observaciones y el centroide de cada cluster.
+
+#### **Pasos del algoritmo**:
+1. Inicializar aleatoriamente **K** centroides.
+2. Asignar cada observación al cluster más cercano (según la distancia euclidiana).
+3. Recalcular los centroides como la media de las observaciones de cada cluster.
+4. Repetir los pasos 2 y 3 hasta que no haya cambios significativos en los centroides.
+
+### 2.2 Ejemplo: K-means en `iris`
+
+#### 1. Cargar los datos y seleccionar las variables
+
+```{r}
+# Cargar la base de datos iris
+data(iris)
+
+# Seleccionar las variables numéricas
+iris_numerico <- iris[, 1:4]
+
+# Escalar los datos
+iris_escalado <- scale(iris_numerico)
+
+# Ver las primeras filas de los datos escalados
+head(iris_escalado)
+```
+
+#### 2. Determinar el número óptimo de clusters (Elbow method)
+
+Para determinar el número óptimo de clusters, utilizamos el **método del codo (Elbow Method)**, que evalúa la suma de las distancias cuadradas dentro de los clusters (inertia) para diferentes valores de **K**.
+
+```{r}
+# Calcular el codo para determinar el número óptimo de clusters
+set.seed(123)
+inercia <- sapply(1:10, function(k) {kmeans(iris_escalado, centers = k, nstart = 20)$tot.withinss})
+
+# Graficar el codo
+plot(1:10, inercia, type = "b", pch = 19, frame = FALSE,
+     xlab = "Número de clusters K", ylab = "Inercia (Suma de Distancias Cuadradas)")
+```
+
+#### 3. Realizar el clustering K-means
+
+```{r}
+# Ajustar el modelo K-means con K = 3 (según el codo)
+set.seed(123)
+modelo_kmeans <- kmeans(iris_escalado, centers = 3, nstart = 20)
+
+# Ver los resultados del clustering
+modelo_kmeans$cluster
+```
+
+#### 4. Visualización de los clusters
+
+```{r}
+# Instalar y cargar el paquete factoextra si es necesario
+# install.packages("factoextra")
+library(factoextra)
+
+# Visualizar los clusters
+fviz_cluster(modelo_kmeans, data = iris_escalado, geom = "point", ellipse.type = "norm") +
+  labs(title = "Clustering K-means en iris")
+```
+
+### 2.3 Interpretación
+
+- **Centroides**: Representan el punto medio de cada cluster.
+- **Distancias dentro de los clusters**: Una baja suma de distancias dentro de los clusters indica una buena cohesión.
+- **Separación entre clusters**: Los clusters bien definidos estarán separados en el gráfico.
+
+---
+
+## 3. Clustering Jerárquico
+
+### 3.1 Explicación
+
+El **Clustering Jerárquico** es un método que agrupa las observaciones de manera secuencial, creando una jerarquía de clusters. Puede ser **aglomerativo** (se empiezan con cada observación en su propio cluster y se fusionan clusters) o **divisivo** (se comienza con un solo cluster que se divide recursivamente).
+
+#### **Pasos del método aglomerativo**:
+1. Calcular la matriz de distancias entre observaciones.
+2. Combinar los clusters más cercanos.
+3. Repetir hasta que todas las observaciones estén en un único cluster.
+
+### 3.2 Ejemplo: Clustering Jerárquico en `iris`
+
+#### 1. Calcular la matriz de distancias y realizar el clustering jerárquico
+
+```{r}
+# Calcular la matriz de distancias euclidianas
+distancia <- dist(iris_escalado, method = "euclidean")
+
+# Realizar el clustering jerárquico usando el método de enlace completo
+clust_jerarquico <- hclust(distancia, method = "complete")
+
+# Graficar el dendrograma
+plot(clust_jerarquico, labels = iris$Species, main = "Dendrograma de Clustering Jerárquico", sub = "")
+```
+
+#### 2. Cortar el dendrograma para obtener K clusters
+
+```{r}
+# Cortar el dendrograma en 3 clusters
+grupos_jerarquico <- cutree(clust_jerarquico, k = 3)
+
+# Visualizar los clusters
+table(grupos_jerarquico, iris$Species)
+```
+
+### 3.3 Interpretación
+
+- **Dendrograma**: Muestra cómo se combinan los clusters a diferentes niveles de similitud.
+- **Corte en K clusters**: Al cortar el dendrograma en un punto, obtenemos K clusters.
+
+---
+
+## 4. DBSCAN: Clustering basado en densidad
+
+### 4.1 Explicación
+
+**DBSCAN (Density-Based Spatial Clustering of Applications with Noise)** es un método de clustering que agrupa puntos densamente conectados y separa aquellos que están en regiones de baja densidad (considerados como ruido).
+
+#### **Parámetros clave**:
+- **Epsilon (eps)**: Define la distancia máxima para considerar puntos como vecinos.
+- **MinPts**: Número mínimo de puntos para considerar una región como densa.
+
+### 4.2 Ejemplo: DBSCAN en `iris`
+
+#### 1. Ajustar el modelo DBSCAN
+
+```{r}
+# Instalar y cargar el paquete dbscan si es necesario
+# install.packages("dbscan")
+library(dbscan)
+
+# Ajustar el modelo DBSCAN
+modelo_dbscan <- dbscan(iris_escalado, eps = 0.5, minPts = 5)
+
+# Ver los clusters
+modelo_dbscan$cluster
+```
+
+#### 2. Visualización de los clusters
+
+```{r}
+# Visualizar los clusters de DBSCAN
+fviz_cluster(list(data = iris_escalado, cluster = modelo_dbscan$cluster)) +
+  labs(title = "Clustering DBSCAN en iris")
+```
+
+### 4.3 Interpretación
+
+- **Clusters densos**: Los puntos en regiones densas se agrupan en clusters.
+- **Ruido**: Los puntos en regiones de baja densidad se etiquetan como ruido (cluster 0).
+
+---
+
+## 5. Ejercicios Prácticos
+
+### **Ejercicio 1**: K-means en otro conjunto de datos
+
+Realiza el clustering K-means en el conjunto de datos `mtcars`. Determina el número óptimo de clusters utilizando el método del codo y visualiza los resultados.
+
+```{r}
+# Tu código aquí
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```{r}
+# Escalar los datos de mtcars
+mtcars_escalado <- scale(mtcars)
+
+# Calcular el codo
+set.seed(123)
+inercia_mtcars <- sapply(1:10, function(k) {kmeans(mtcars_escalado, centers = k, nstart = 20)$tot.withinss})
+
+# Graficar el codo
+plot(1:10, inercia_mtcars, type = "b", pch = 19, frame = FALSE,
+     xlab = "Número de clusters K", ylab = "Inercia")
+
+# Ajustar el modelo K-means
+modelo_kmeans_mtcars <- kmeans(mtcars_escalado, centers = 3, nstart = 20)
+
+# Visualizar los clusters
+fviz_cluster(modelo_kmeans_mtcars, data = mtcars_escalado)
+```
+
+</details
+
+>
+
+---
+
+### **Ejercicio 2**: Clustering Jerárquico en otro conjunto de datos
+
+Realiza el clustering jerárquico en el conjunto de datos `mtcars`. Visualiza el dendrograma y corta el árbol para obtener 4 clusters.
+
+```{r}
+# Tu código aquí
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```{r}
+# Calcular la matriz de distancias
+distancia_mtcars <- dist(mtcars_escalado, method = "euclidean")
+
+# Realizar el clustering jerárquico
+clust_jerarquico_mtcars <- hclust(distancia_mtcars, method = "complete")
+
+# Graficar el dendrograma
+plot(clust_jerarquico_mtcars, main = "Dendrograma de Clustering Jerárquico en mtcars")
+
+# Cortar el dendrograma en 4 clusters
+grupos_jerarquico_mtcars <- cutree(clust_jerarquico_mtcars, k = 4)
+
+# Ver los clusters
+table(grupos_jerarquico_mtcars)
+```
+
+</details>
+
+---
+
+### **Ejercicio 3**: DBSCAN en otro conjunto de datos
+
+Ajusta un modelo DBSCAN en `mtcars`, ajusta los parámetros `eps` y `minPts`, y visualiza los clusters.
+
+```{r}
+# Tu código aquí
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```{r}
+# Ajustar el modelo DBSCAN
+modelo_dbscan_mtcars <- dbscan(mtcars_escalado, eps = 1, minPts =3)
+
+# Ver los clusters
+modelo_dbscan_mtcars$cluster
+
+# Visualizar los clusters
+fviz_cluster(list(data = mtcars_escalado, cluster = modelo_dbscan_mtcars$cluster))
+```
+
+</details>

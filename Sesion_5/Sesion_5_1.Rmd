@@ -1,0 +1,230 @@
+---
+title: "Inferencia Estadística: Diferencias de Medias Paramétricas"
+author: "Ricardo Macías Bohórquez"
+date: "`r format(Sys.Date(), '%d de %B de %Y')`"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    theme: cosmo
+    highlight: kate
+    code_folding: hide
+---
+
+# Inferencia Estadística: Diferencias de Medias Paramétricas
+
+En este documento, aprenderemos a realizar pruebas de hipótesis para comparar diferencias de medias paramétricas. Abordaremos las pruebas **t** para una sola muestra, dos muestras independientes, y dos muestras relacionadas (pareadas). Explicaremos paso a paso cómo realizar estas pruebas, sus supuestos, la interpretación de los p-values, y cómo formular las hipótesis.
+
+---
+
+## 1. Conceptos Fundamentales
+
+### 1.1 ¿Qué es una Prueba t?
+
+La prueba **t de Student** es una prueba estadística paramétrica utilizada para determinar si existe una diferencia significativa entre las medias de dos grupos, o entre la media de una muestra y un valor de referencia. Se utiliza cuando:
+- Las variables son **cuantitativas** (numéricas).
+- Los datos siguen una **distribución normal** (supuesto de normalidad).
+
+### 1.2 Hipótesis en las Pruebas t
+
+Cada prueba t implica dos hipótesis:
+- **Hipótesis nula (H0)**: No existe una diferencia significativa entre las medias.
+- **Hipótesis alternativa (H1)**: Existe una diferencia significativa entre las medias.
+
+### 1.3 Supuestos de la Prueba t
+1. **Distribución Normal**: Los datos deben seguir una distribución aproximadamente normal.
+2. **Escala de Intervalo o Razón**: La variable debe ser numérica continua.
+3. **Varianza Igual** (para muestras independientes): Ambas muestras deben tener varianzas similares (supuesto de homogeneidad de varianzas).
+
+---
+
+## 2. Prueba t para una sola muestra
+
+### 2.1 Explicación
+Este tipo de prueba se utiliza para comparar la media de una muestra con un valor conocido o hipotético (media poblacional).
+
+#### **Hipótesis**:
+- **H0**: La media de la muestra es igual a la media poblacional (no hay diferencia).
+- **H1**: La media de la muestra es diferente a la media poblacional (hay una diferencia significativa).
+
+### 2.2 Ejemplo: ¿La media del consumo de millas por galón (mpg) es igual a 20 en la base de datos `mtcars`?
+
+#### 1. Cargar los datos
+
+```{r}
+# Cargar la base de datos mtcars
+data(mtcars)
+
+# Mostrar las primeras filas del conjunto de datos
+head(mtcars)
+```
+
+#### 2. Realizar la prueba t de una sola muestra
+
+```{r}
+# Realizar prueba t de una sola muestra
+t_test_unamuestra <- t.test(mtcars$mpg, mu = 20)
+
+# Mostrar resultados
+print(t_test_unamuestra)
+```
+
+### 2.3 Interpretación del p-value:
+- **Si p < 0.05**, rechazamos la hipótesis nula (**H0**) y concluimos que la media de `mpg` es significativamente diferente a 20.
+- **Si p ≥ 0.05**, no rechazamos la hipótesis nula y concluimos que no hay suficiente evidencia para afirmar que la media de `mpg` es diferente a 20.
+
+---
+
+## 3. Prueba t para dos muestras independientes
+
+### 3.1 Explicación
+Este tipo de prueba compara las medias de dos grupos independientes, es decir, los individuos en un grupo no están relacionados con los del otro.
+
+#### **Hipótesis**:
+- **H0**: Las medias de los dos grupos son iguales.
+- **H1**: Las medias de los dos grupos son diferentes.
+
+#### **Supuestos adicionales**:
+- Homogeneidad de varianzas: Ambas muestras deben tener varianzas similares (esto se puede verificar con la prueba de **Levene**).
+
+### 3.2 Ejemplo: Comparar el `mpg` entre autos con diferentes tipos de transmisión (automática vs manual) en `mtcars`
+
+#### 1. Visualizar los grupos
+
+```{r}
+# Convertir la variable 'am' a factor
+mtcars$am <- factor(mtcars$am, levels = c(0, 1), labels = c("Automática", "Manual"))
+
+# Comparar las medias de 'mpg' entre transmisiones
+tapply(mtcars$mpg, mtcars$am, mean)
+```
+
+#### 2. Realizar la prueba t para dos muestras independientes
+
+```{r}
+# Realizar prueba t para dos muestras independientes
+t_test_independientes <- t.test(mpg ~ am, data = mtcars)
+
+# Mostrar resultados
+print(t_test_independientes)
+```
+
+### 3.3 Interpretación del p-value:
+- **Si p < 0.05**, rechazamos la hipótesis nula y concluimos que las medias de `mpg` entre autos automáticos y manuales son significativamente diferentes.
+- **Si p ≥ 0.05**, no rechazamos la hipótesis nula y concluimos que no hay evidencia suficiente para afirmar que las medias de `mpg` son diferentes entre estos grupos.
+
+---
+
+## 4. Prueba t para muestras relacionadas (pareadas)
+
+### 4.1 Explicación
+Este tipo de prueba se utiliza cuando se tienen dos conjuntos de medidas que están emparejadas o relacionadas (por ejemplo, mediciones antes y después de un tratamiento en el mismo grupo de individuos).
+
+#### **Hipótesis**:
+- **H0**: Las medias de las dos condiciones son iguales.
+- **H1**: Las medias de las dos condiciones son diferentes.
+
+### 4.2 Ejemplo: Comparar las mediciones antes y después de un tratamiento hipotético
+
+#### 1. Simular un conjunto de datos
+
+```{r}
+# Simular un conjunto de datos
+set.seed(123)  # Para reproducibilidad
+antes <- rnorm(30, mean = 80, sd = 10)
+despues <- antes + rnorm(30, mean = 5, sd = 5)
+
+# Crear un data.frame con los datos
+df_pareados <- data.frame(antes, despues)
+
+# Visualizar las primeras filas
+head(df_pareados)
+```
+
+#### 2. Realizar la prueba t para muestras pareadas
+
+```{r}
+# Realizar prueba t para muestras relacionadas
+t_test_pareadas <- t.test(df_pareados$antes, df_pareados$despues, paired = TRUE)
+
+# Mostrar resultados
+print(t_test_pareadas)
+```
+
+### 4.3 Interpretación del p-value:
+- **Si p < 0.05**, rechazamos la hipótesis nula y concluimos que hay una diferencia significativa entre las mediciones antes y después del tratamiento.
+- **Si p ≥ 0.05**, no rechazamos la hipótesis nula y concluimos que no hay suficiente evidencia para afirmar que existe una diferencia entre las mediciones antes y después.
+
+---
+
+## 5. Ejercicios Prácticos
+
+### **Ejercicio 1**: Prueba t para una sola muestra
+
+Usa la base de datos `mtcars` para probar si la media de `hp` (caballos de fuerza) es igual a 150.
+
+```{r}
+# Tu código aquí
+
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```{r}
+# Realizar la prueba t
+t.test(mtcars$hp, mu = 150)
+```
+
+</details>
+
+---
+
+### **Ejercicio 2**: Prueba t para dos muestras independientes
+
+Compara la variable `hp` entre autos con diferente número de cilindros (`cyl`). ¿Hay una diferencia significativa en los caballos de fuerza?
+
+```{r}
+# Tu código aquí
+
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```{r}
+# Convertir cyl a factor
+mtcars$cyl <- factor(mtcars$cyl)
+
+# Realizar prueba t
+t.test(hp ~ cyl, data = subset(mtcars, cyl %in% c(4, 6)))
+```
+
+</details>
+
+---
+
+### **Ejercicio 3**: Prueba t para muestras pareadas
+
+Simula dos conjuntos de datos relacionados y realiza una prueba t pareada para comprobar si hay una diferencia significativa entre los dos grupos.
+
+```{r}
+# Tu código aquí
+
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```{r}
+# Simular datos pareados
+grupo_1 <- rnorm(20, mean = 70, sd = 8)
+grupo_2 <- grupo_1 + rnorm(20, mean = 3, sd = 5)
+
+# Realizar la prueba t pareada
+t.test(grupo_1, grupo_2, paired = TRUE)
+```
+
+</details>
+

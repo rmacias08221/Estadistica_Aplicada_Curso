@@ -1,0 +1,200 @@
+---
+title: "Transformación de Datos con data.table"
+author: "Ricardo Macías Bohórquez"
+date: "`r format(Sys.Date(), '%d de %B de %Y')`"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    theme: cosmo
+    highlight: kate
+    code_folding: hide
+---
+
+# Transformación de Datos con `data.table`
+
+En esta clase, aprenderemos a transformar y reestructurar datos utilizando `data.table` en lugar de `tidyr`. Aunque `tidyr` es una excelente herramienta para la transformación de datos, `data.table` ofrece una alternativa rápida y eficiente, especialmente para grandes conjuntos de datos.
+
+---
+
+## 1. Pivotear Datos con `data.table`
+
+### 1.1 Usar `dcast()` para pivotear datos
+
+La función `dcast()` en `data.table` realiza la función equivalente a `pivot_wider()` en `tidyr`. Sirve para transformar datos largos en anchos.
+
+```{r}
+# Cargar data.table
+library(data.table)
+
+# Crear un data.table de ejemplo en formato largo
+dt_largo <- data.table(
+  Nombre = c("Juan", "María", "Pedro", "Ana", "Juan", "María", "Pedro", "Ana"),
+  Año = c(2021, 2021, 2021, 2021, 2022, 2022, 2022, 2022),
+  Calificación = c(80, 90, 85, 95, 82, 91, 87, 96)
+)
+
+# Ver el data.table en formato largo
+print(dt_largo)
+
+# Pivotear datos a formato ancho
+dt_ancho <- dcast(dt_largo, Nombre ~ Año, value.var = "Calificación")
+print(dt_ancho)
+```
+
+**Explicación**: `dcast()` pivotea los datos de formato largo a ancho, utilizando la fórmula `Nombre ~ Año` para especificar qué columnas utilizar para las filas y las columnas pivoteadas, y `value.var` indica cuál es el valor que se rellenará.
+
+---
+
+## 2. Unir Datos con `data.table`
+
+### 2.1 Unir tablas con `merge()`
+
+`data.table` ofrece una forma rápida y eficiente de unir tablas, equivalente a `left_join()`, `right_join()`, y otros tipos de uniones en `tidyr` y `dplyr`.
+
+```{r}
+# Crear dos data.tables
+dt1 <- data.table(
+  ID = c(1, 2, 3, 4),
+  Nombre = c("Juan", "María", "Pedro", "Ana")
+)
+
+dt2 <- data.table(
+  ID = c(1, 2, 3, 5),
+  Salario = c(3000, 3500, 4000, 4500)
+)
+
+# Realizar una unión (left join)
+dt_unido <- merge(dt1, dt2, by = "ID", all.x = TRUE)
+print(dt_unido)
+```
+
+**Explicación**: `merge()` une dos `data.tables` de forma eficiente. Aquí estamos realizando una "left join" especificando `all.x = TRUE`, que mantiene todas las filas de `dt1` y añade información de `dt2`.
+
+---
+
+## 3. Manejo de Datos Faltantes
+
+### 3.1 Eliminar filas con datos faltantes
+
+Con `data.table`, podemos eliminar de manera eficiente filas que contengan valores faltantes.
+
+```{r}
+# Crear un data.table con valores faltantes
+dt_na <- data.table(
+  Nombre = c("Juan", "María", "Pedro", "Ana"),
+  Edad = c(23, NA, 30, 28),
+  Ciudad = c("Bogotá", "Medellín", NA, "Cartagena")
+)
+
+# Eliminar filas con valores faltantes
+dt_sin_na <- dt_na[complete.cases(dt_na)]
+print(dt_sin_na)
+```
+
+**Explicación**: Utilizamos `complete.cases()` para identificar las filas que no contienen ningún valor faltante y las seleccionamos en el `data.table`.
+
+---
+
+## 4. Dividir una columna en múltiples columnas
+
+### 4.1 Usar `tstrsplit()` para dividir columnas
+
+`data.table` tiene la función `tstrsplit()`, equivalente a `separate()` en `tidyr`, que permite dividir el contenido de una columna en múltiples columnas.
+
+```{r}
+# Crear un data.table con una columna que contiene información combinada
+dt_combinado <- data.table(
+  ID = 1:4,
+  Nombre_Ciudad = c("Juan-Bogotá", "María-Medellín", "Pedro-Cali", "Ana-Cartagena")
+)
+
+# Dividir la columna "Nombre_Ciudad" en dos columnas separadas
+dt_combinado[, c("Nombre", "Ciudad") := tstrsplit(Nombre_Ciudad, "-", fixed = TRUE)]
+print(dt_combinado)
+```
+
+**Explicación**: `tstrsplit()` separa la columna `Nombre_Ciudad` en dos columnas nuevas: `Nombre` y `Ciudad`, basándose en el carácter separador `"-"`.
+
+---
+
+## 5. Combinar filas (unir datos) con `rbind()`
+
+### 5.1 Unir datos verticalmente con `rbind()`
+
+Cuando quieras combinar dos `data.tables` uno sobre el otro (similar a `bind_rows()` de `dplyr`), puedes utilizar `rbind()`.
+
+```{r}
+# Crear dos data.tables
+dt_parte1 <- data.table(
+  Nombre = c("Juan", "María"),
+  Edad = c(23, 25)
+)
+
+dt_parte2 <- data.table(
+  Nombre = c("Pedro", "Ana"),
+  Edad = c(30, 28)
+)
+
+# Combinar ambos data.tables
+dt_combinado <- rbind(dt_parte1, dt_parte2)
+print(dt_combinado)
+```
+
+**Explicación**: `rbind()` une verticalmente dos `data.tables`, manteniendo las mismas columnas.
+
+---
+
+## 6. Ejercicios Prácticos
+
+### **Ejercicio 1**: Pivotear datos
+
+Convierte el siguiente `data.table` de formato largo a formato ancho usando `dcast()`.
+
+```{r}
+dt <- data.table(
+  Nombre = c("Luis", "Carlos", "Sofía", "Daniela", "Luis", "Carlos", "Sofía", "Daniela"),
+  Año = c(2020, 2020, 2020, 2020, 2021, 2021, 2021, 2021),
+  Nota = c(85, 90, 78, 88, 89, 92, 84, 91)
+)
+dt
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```{r}
+# Solución
+dt_ancho <- dcast(dt, Nombre ~ Año, value.var = "Nota")
+print(dt_ancho)
+```
+
+</details>
+
+---
+
+### **Ejercicio 2**: Unir tablas
+
+Usa `merge()` para unir las siguientes tablas por la columna "ID":
+
+```{r}
+dt1 <- data.table(ID = 1:3, Nombre = c("Santiago", "Lucas", "Valentina"))
+dt2 <- data.table(ID = 2:4, Ciudad = c("Bogotá", "Medellín", "Cali"))
+
+print(dt1)
+print(dt2)
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```{r}
+# Solución
+dt_unido <- merge(dt1, dt2, by = "ID", all.x = TRUE)
+print(dt_unido)
+```
+
+</details>
+
+---

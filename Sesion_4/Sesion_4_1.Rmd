@@ -1,0 +1,220 @@
+---
+title: "Análisis Descriptivo con `data.table` y `DataExplorer` usando `mtcars`"
+author: "Ricardo Macías Bohórquez"
+date: "`r format(Sys.Date(), '%d de %B de %Y')`"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    theme: cosmo
+    highlight: kate
+    code_folding: hide
+---
+
+# Análisis Descriptivo con `data.table` y `DataExplorer` usando `mtcars`
+
+En este análisis, exploraremos el conjunto de datos `mtcars`, un conjunto de datos clásico en R que contiene especificaciones sobre varios modelos de automóviles. A través de este análisis, aprenderemos a calcular estadísticas descriptivas, explorar relaciones entre variables con correlaciones, y visualizar los datos con técnicas gráficas como histogramas, boxplots y violinplots.
+
+---
+
+## 1. Descripción de la base de datos `mtcars`
+
+El conjunto de datos `mtcars` contiene 32 observaciones (automóviles) y 11 variables numéricas que describen diferentes aspectos de rendimiento y características de los autos.
+
+### Variables de `mtcars`:
+- **mpg**: Millas por galón (mileage).
+- **cyl**: Número de cilindros.
+- **disp**: Desplazamiento del motor (pulgadas cúbicas).
+- **hp**: Caballos de fuerza.
+- **drat**: Relación del eje trasero.
+- **wt**: Peso del automóvil (en miles de libras).
+- **qsec**: Tiempo en segundos para recorrer un cuarto de milla.
+- **vs**: Tipo de motor (0 = V-shaped, 1 = straight).
+- **am**: Tipo de transmisión (0 = automática, 1 = manual).
+- **gear**: Número de velocidades de la transmisión.
+- **carb**: Número de carburadores.
+
+---
+
+## 2. Exploración de Datos con `DataExplorer`
+
+### 2.1 Cargar los datos y generar un reporte exploratorio
+
+Vamos a generar un reporte inicial usando `DataExplorer`, que nos proporcionará una visión general de las variables en el conjunto de datos.
+
+```{r}
+# Cargar bibliotecas
+library(data.table)
+library(DataExplorer)
+
+# Convertir mtcars a data.table
+dt_mtcars <- as.data.table(mtcars)
+
+# Generar un reporte automático
+create_report(dt_mtcars)
+```
+
+**Explicación**: El reporte incluye la distribución de cada variable numérica, un análisis de datos faltantes, y la matriz de correlación entre las variables.
+
+---
+
+## 3. Estadísticas Descriptivas
+
+### 3.1 Cálculo de estadísticas descriptivas básicas
+
+Podemos calcular la media, mediana y desviación estándar de variables clave como `mpg` (millas por galón), `hp` (caballos de fuerza) y `wt` (peso del automóvil).
+
+```{r}
+# Calcular estadísticas descriptivas
+estadisticas_mtcars <- dt_mtcars[, .(
+  Media_mpg = mean(mpg),
+  Mediana_mpg = median(mpg),
+  Desviacion_mpg = sd(mpg),
+  Media_hp = mean(hp),
+  Mediana_hp = median(hp),
+  Desviacion_hp = sd(hp),
+  Media_wt = mean(wt),
+  Mediana_wt = median(wt),
+  Desviacion_wt = sd(wt)
+)]
+print(estadisticas_mtcars)
+```
+
+**Explicación**:
+- **Media**: Promedio de los valores de la variable.
+- **Mediana**: Valor central de los datos.
+- **Desviación estándar**: Mide la dispersión de los datos respecto a la media.
+
+Por ejemplo, `mpg` mide la eficiencia de combustible en millas por galón. Conocer la media y la desviación estándar de esta variable nos da una idea de cuán eficiente es en promedio y cuánto varía entre los automóviles.
+
+---
+
+## 4. Análisis de Correlación
+
+### 4.1 ¿Qué es la correlación?
+
+La **correlación** mide la relación entre dos variables numéricas. El coeficiente de correlación de Pearson toma valores entre -1 y 1:
+- **1**: Correlación positiva perfecta (ambas variables aumentan juntas).
+- **-1**: Correlación negativa perfecta (una variable aumenta mientras la otra disminuye).
+- **0**: No hay relación lineal.
+
+### 4.2 Calcular la matriz de correlación
+
+Calculamos la correlación entre variables importantes como `mpg`, `hp`, `wt`, y `qsec`:
+
+```{r}
+# Calcular la matriz de correlación
+correlacion_mtcars <- cor(dt_mtcars[, .(mpg, hp, wt, qsec)])
+print(correlacion_mtcars)
+```
+
+**Explicación**: Esta matriz muestra cómo se relacionan las variables entre sí. Por ejemplo, podríamos observar una correlación negativa entre `mpg` y `wt`, lo que indica que a mayor peso del automóvil, menor es la eficiencia de combustible.
+
+### 4.3 Visualizar la matriz de correlación
+
+```{r}
+# Visualizar la matriz de correlación
+plot_correlation(dt_mtcars)
+```
+
+**Explicación**: Esta gráfica facilita la interpretación de las correlaciones, mostrando qué pares de variables tienen relaciones fuertes (positivas o negativas).
+
+---
+
+## 5. Visualización de Datos
+
+### 5.1 Diagramas de caja (Boxplots)
+
+Un **boxplot** es una herramienta útil para visualizar la distribución de una variable numérica y detectar posibles valores atípicos. Muestra el rango intercuartílico (IQR), los valores extremos (outliers), y la mediana.
+
+```{r}
+# Boxplot de millas por galón (mpg)
+boxplot(dt_mtcars$mpg, main = "Distribución de Millas por Galón (mpg)", ylab = "mpg")
+
+# Boxplot de caballos de fuerza (hp)
+boxplot(dt_mtcars$hp, main = "Distribución de Caballos de Fuerza (hp)", ylab = "hp")
+```
+
+**Explicación**: Un boxplot es útil para detectar autos que tienen una eficiencia de combustible muy diferente (valores atípicos) o autos con caballos de fuerza significativamente superiores o inferiores al promedio.
+
+### 5.2 Violinplots: Combinando distribución y boxplot
+
+Un **violinplot** combina un boxplot con una visualización de la distribución de los datos (similitud a un histograma). Nos ayuda a ver tanto la concentración de los datos como su rango.
+
+Para usar violinplots, utilizamos `ggplot2`:
+
+```{r}
+# Instalar y cargar ggplot2 si no está instalado
+# install.packages("ggplot2")
+library(ggplot2)
+
+# Crear un violinplot para mpg
+ggplot(dt_mtcars, aes(x = factor(cyl), y = mpg)) +
+  geom_violin(fill = "lightblue") +
+  geom_boxplot(width = 0.1, color = "black", fill = "white") +
+  labs(title = "Violinplot: Millas por Galón según Cilindros", x = "Cilindros", y = "Millas por Galón (mpg)")
+```
+
+**Explicación**: El violinplot muestra la distribución de `mpg` para automóviles con diferentes números de cilindros. Podemos observar dónde se concentran más los datos y si hay mucha variabilidad.
+
+### 5.3 Histogramas para la distribución de datos
+
+```{r}
+# Histograma de millas por galón
+plot_histogram(dt_mtcars)
+```
+
+**Explicación**: Un histograma es útil para ver cómo se distribuye una variable. Por ejemplo, si `mpg` se distribuye normalmente o si hay una asimetría en la distribución.
+
+---
+
+## 6. Ejercicios Prácticos
+
+### **Ejercicio 1**: Estadísticas Descriptivas
+
+Calcula la media, mediana y desviación estándar de la variable `hp` (caballos de fuerza) del conjunto de datos `mtcars`.
+
+```{r}
+# Tu código aquí
+
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```{r}
+# Solución
+estadisticas_hp <- dt_mtcars[, .(
+  Media_hp = mean(hp),
+  Mediana_hp = median(hp),
+  Desviacion_hp = sd(hp)
+)]
+print(estadisticas_hp)
+```
+
+</details>
+
+---
+
+### **Ejercicio 2**: Correlación entre Variables
+
+Calcula la correlación entre `mpg` (millas por galón) y `wt` (peso del automóvil) en `mtcars`.
+
+```{r}
+# Tu código aquí
+
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```{r}
+# Solución
+correlacion_mpg_wt <- cor(dt_mtcars$mpg, dt_mtcars$wt)
+print(correlacion_mpg_wt)
+```
+
+</details>
+
+---

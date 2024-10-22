@@ -1,0 +1,173 @@
+---
+title: "Análisis No Paramétrico: Kruskal-Wallis y Friedman"
+author: "Ricardo Macías Bohórquez"
+date: "`r format(Sys.Date(), '%d de %B de %Y')`"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    theme: cosmo
+    highlight: kate
+    code_folding: hide
+---
+
+# Análisis No Paramétrico: Kruskal-Wallis y Friedman
+
+En este documento, aprenderemos a realizar análisis no paramétricos que son equivalentes al ANOVA cuando no se cumplen los supuestos de normalidad. Abordaremos:
+- **Prueba de Kruskal-Wallis**: Alternativa no paramétrica al ANOVA de una vía para más de dos grupos independientes.
+- **Prueba de Friedman**: Alternativa no paramétrica al ANOVA de medidas repetidas para comparar varias mediciones en los mismos individuos.
+
+---
+
+## 1. Conceptos Fundamentales
+
+### 1.1 ¿Por qué usar pruebas no paramétricas?
+
+Las pruebas no paramétricas no requieren que los datos sigan una distribución normal ni suponen homogeneidad de varianzas. Se utilizan para comparar medianas en lugar de medias y son apropiadas cuando los datos son ordinales o cuando hay valores atípicos que distorsionan los resultados de una prueba paramétrica.
+
+### 1.2 Hipótesis en Pruebas No Paramétricas
+
+- **Hipótesis nula (H0)**: No existen diferencias significativas entre los grupos o mediciones.
+- **Hipótesis alternativa (H1)**: Existen diferencias significativas entre los grupos o mediciones.
+
+---
+
+## 2. Prueba de Kruskal-Wallis para Grupos Independientes
+
+### 2.1 Explicación
+
+La prueba de **Kruskal-Wallis** es la alternativa no paramétrica al ANOVA de una vía. Se utiliza para comparar más de dos grupos independientes y evalúa si las distribuciones de los grupos son diferentes.
+
+#### **Hipótesis**:
+- **H0**: Las distribuciones de los grupos son iguales.
+- **H1**: Al menos un grupo tiene una distribución diferente.
+
+### 2.2 Ejemplo: Comparar `mpg` (Millas por Galón) entre autos con diferente número de cilindros (`cyl`) en `mtcars`
+
+#### 1. Cargar los datos
+
+```{r}
+# Cargar la base de datos mtcars
+data(mtcars)
+
+# Convertir la variable cyl a factor
+mtcars$cyl <- factor(mtcars$cyl)
+
+# Comparar las medianas de mpg entre los grupos
+tapply(mtcars$mpg, mtcars$cyl, median)
+```
+
+#### 2. Realizar la prueba de Kruskal-Wallis
+
+```{r}
+# Realizar la prueba de Kruskal-Wallis
+kruskal_test <- kruskal.test(mpg ~ cyl, data = mtcars)
+
+# Mostrar resultados
+print(kruskal_test)
+```
+
+### 2.3 Interpretación del p-value:
+- **Si p < 0.05**, rechazamos la hipótesis nula y concluimos que hay diferencias significativas entre los grupos.
+- **Si p ≥ 0.05**, no rechazamos la hipótesis nula y concluimos que no hay suficiente evidencia para afirmar que las distribuciones son diferentes.
+
+---
+
+## 3. Prueba de Friedman para Mediciones Repetidas
+
+### 3.1 Explicación
+
+La prueba de **Friedman** es la alternativa no paramétrica al ANOVA de medidas repetidas. Se utiliza cuando se toman varias mediciones sobre los mismos sujetos o unidades experimentales y no se cumplen los supuestos de normalidad.
+
+#### **Hipótesis**:
+- **H0**: No hay diferencias significativas entre las mediciones.
+- **H1**: Hay diferencias significativas entre las mediciones.
+
+### 3.2 Ejemplo: Simulación de un experimento con mediciones repetidas
+
+#### 1. Simular un conjunto de datos de medidas repetidas
+
+```{r}
+# Simular datos de tres mediciones en 10 sujetos
+set.seed(123)
+sujetos <- factor(rep(1:10, each = 3))
+medicion <- factor(rep(c("Tiempo1", "Tiempo2", "Tiempo3"), times = 10))
+valor <- rnorm(30, mean = rep(c(80, 85, 88), each = 10), sd = 5)
+
+# Crear un data.frame
+df_repetidas <- data.frame(sujetos, medicion, valor)
+
+# Visualizar las primeras filas
+head(df_repetidas)
+```
+
+#### 2. Realizar la prueba de Friedman
+
+```{r}
+# Realizar la prueba de Friedman
+friedman_test <- friedman.test(valor ~ medicion | sujetos, data = df_repetidas)
+
+# Mostrar los resultados
+print(friedman_test)
+```
+
+### 3.3 Interpretación del p-value:
+- **Si p < 0.05**, rechazamos la hipótesis nula y concluimos que hay diferencias significativas entre las mediciones.
+- **Si p ≥ 0.05**, no rechazamos la hipótesis nula y concluimos que no hay suficiente evidencia para afirmar que las mediciones son diferentes.
+
+#### 3. Gráfico de las medianas en las diferentes mediciones
+
+```{r}
+library(ggplot2)
+
+# Gráfico de las medianas por medición
+ggplot(df_repetidas, aes(x = medicion, y = valor, group = 1)) +
+  stat_summary(fun = median, geom = "line", color = "blue", size = 1.5) +
+  labs(title = "Evolución de las medianas a lo largo de las mediciones", x = "Medición", y = "Mediana del valor") +
+  theme_minimal()
+
+ggplot(df_repetidas, aes(x = medicion, y = valor, group = sujetos)) +
+  stat_summary(fun = median, geom = "line", color = "blue", size = 1.5) +
+  labs(title = "Evolución de las medianas a lo largo de las mediciones", x = "Medición", y = "Mediana del valor") +
+  theme_minimal()
+
+```
+
+---
+
+## 4. Ejercicios Prácticos
+
+### **Ejercicio 1**: Prueba de Kruskal-Wallis
+
+Usa la base de datos `iris` para comparar la longitud del sépalo (`Sepal.Length`) entre las tres especies de flores. Realiza la prueba de Kruskal-Wallis y discute los resultados.
+
+```{r}
+# Realizar la prueba de Kruskal-Wallis con iris
+kruskal_test_iris <- kruskal.test(Sepal.Length ~ Species, data = iris)
+
+# Mostrar resultados
+print(kruskal_test_iris)
+```
+
+### **Ejercicio 2**: Prueba de Friedman
+
+Simula datos de 5 sujetos con 4 mediciones y realiza una prueba de Friedman para comprobar si hay diferencias significativas entre las mediciones.
+
+```{r}
+# Simular datos
+set.seed(123)
+sujetos <- factor(rep(1:5, each = 4))
+medicion <- factor(rep(c("Pre", "Post1", "Post2", "Post3"), times = 5))
+valor <- rnorm(20, mean = rep(c(80, 85, 88, 90), each = 5), sd = 3)
+
+# Crear el data.frame
+df_pareadas <- data.frame(sujetos, medicion, valor)
+
+# Realizar la prueba de Friedman
+friedman_test_pareadas <- friedman.test(valor ~ medicion | sujetos, data = df_pareadas)
+
+# Mostrar los resultados
+print(friedman_test_pareadas)
+```
+

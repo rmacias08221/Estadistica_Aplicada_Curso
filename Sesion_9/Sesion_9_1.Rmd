@@ -1,0 +1,291 @@
+---
+title: "Análisis Multivariado: ACP, MCA y LDA"
+author: "Ricardo Macías Bohórquez"
+date: "`r format(Sys.Date(), '%d de %B de %Y')`"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    theme: cosmo
+    highlight: kate
+    code_folding: hide
+---
+
+# Análisis Multivariado: ACP, MCA y LDA
+
+En este documento, exploraremos tres métodos populares de análisis multivariado: **Análisis de Componentes Principales (ACP)**, **Análisis de Correspondencias Múltiples (MCA)** y **Análisis Discriminante Lineal (LDA)**. Estas técnicas nos permiten estudiar relaciones complejas entre múltiples variables, reducir la dimensionalidad y clasificar observaciones.
+
+---
+
+## 1. Análisis de Componentes Principales (ACP)
+
+### 1.1 Explicación del ACP
+
+El **Análisis de Componentes Principales (ACP)** es una técnica que se utiliza para reducir la dimensionalidad de los datos mientras se conserva la mayor cantidad de información posible. Convierte un conjunto de variables correlacionadas en un conjunto más pequeño de variables no correlacionadas llamadas **componentes principales**.
+
+#### **Objetivo**:
+- Reducir la dimensionalidad del conjunto de datos.
+- Explicar la variabilidad en los datos utilizando un número reducido de componentes.
+
+### 1.2 Ejemplo: ACP sobre `mtcars`
+
+#### 1. Cargar y visualizar los datos
+
+```{r}
+# Cargar el conjunto de datos mtcars
+data(mtcars)
+
+# Seleccionar las variables numéricas para realizar el ACP
+datos_acp <- mtcars[, c("mpg", "hp", "wt", "qsec", "drat")]
+
+# Mostrar las primeras filas
+head(datos_acp)
+```
+
+#### 2. Realizar el ACP
+
+```{r}
+# Realizar el Análisis de Componentes Principales (ACP)
+acp_mtcars <- prcomp(datos_acp, scale. = TRUE)
+
+# Mostrar el resumen del ACP
+summary(acp_mtcars)
+```
+
+#### 3. Visualizar el Biplot
+
+El **biplot** es una representación gráfica del ACP que muestra cómo las variables originales se proyectan en los componentes principales.
+
+```{r}
+# Gráfico Biplot del ACP
+biplot(acp_mtcars, main = "Biplot de ACP para mtcars")
+```
+
+### 1.3 Interpretación
+
+En el biplot, podemos ver cómo las variables originales influyen en los componentes principales. Los autos que están más cercanos entre sí en el gráfico son más similares en cuanto a sus valores en las variables originales. Los ejes del gráfico representan los dos primeros componentes principales, que capturan la mayor parte de la variabilidad en los datos.
+
+---
+
+## 2. Análisis de Correspondencias Múltiples (MCA)
+
+### 2.1 Explicación del MCA
+
+El **Análisis de Correspondencias Múltiples (MCA)** es una extensión del análisis de correspondencias para manejar más de dos variables cualitativas. Se utiliza para detectar y representar gráficamente las asociaciones entre múltiples variables categóricas.
+
+#### **Objetivo**:
+- Estudiar las relaciones entre varias variables categóricas.
+- Identificar asociaciones y patrones en los datos cualitativos.
+
+### 2.2 Ejemplo: MCA sobre `HairEyeColor`
+
+#### 1. Crear un conjunto de datos simplificado
+
+Usaremos la base de datos `HairEyeColor`, simplificando a solo dos variables categóricas: **Color de Pelo** y **Color de Ojos**.
+
+```{r}
+# Cargar los datos de HairEyeColor
+data(HairEyeColor)
+
+# Convertir la tabla a un data.frame
+df_hair_eye <- as.data.frame(HairEyeColor)
+
+# Seleccionar las variables categóricas
+df_mca <- df_hair_eye[, c("Hair", "Eye")]
+
+# Mostrar las primeras filas
+head(df_mca)
+```
+
+#### 2. Realizar el MCA
+
+```{r}
+# Instalar y cargar el paquete FactoMineR si es necesario
+# install.packages("FactoMineR")
+library(FactoMineR)
+
+# Realizar el MCA
+mca_hair_eye <- MCA(df_mca, graph = FALSE)
+
+# Mostrar el resumen del MCA
+summary(mca_hair_eye)
+```
+
+#### 3. Visualizar el Gráfico del MCA
+
+```{r}
+# Gráfico del Análisis de Correspondencias Múltiples
+plot(mca_hair_eye, invisible = "quali.sup", main = "MCA: Hair vs Eye Color")
+```
+
+```{r}
+# Instalar y cargar factoextra si es necesario
+# install.packages("factoextra")
+library(FactoMineR)
+library(factoextra)
+
+# Realizar el Análisis de Correspondencias Múltiples (MCA)
+mca_hair_eye <- MCA(df_mca, graph = FALSE)
+
+# Gráfico del MCA utilizando factoextra con diferentes colores para las variables
+fviz_mca_var(mca_hair_eye, 
+             col.var = "cos2",       # Color por calidad de la representación
+             gradient.cols = c("blue", "red", "green"), # Paleta de colores
+             repel = TRUE,            # Evitar la superposición de etiquetas
+             title = "MCA: Hair vs Eye Color")
+```
+
+```{r}
+# Cargar el dataset HairEyeColor y convertirlo en un data frame
+hair_eye_data <- as.data.frame(HairEyeColor)
+
+# Solo nos interesa el color del cabello (Hair) y los ojos (Eye)
+hair_eye_data <- hair_eye_data[, c("Hair", "Eye")]
+
+# Realizar el Análisis de Correspondencias Múltiples (MCA)
+mca_hair_eye <- MCA(hair_eye_data, graph = FALSE)
+
+# Asignar colores diferentes para cada grupo de variables
+fviz_mca_var(mca_hair_eye, 
+             col.var = c(rep("blue", 4), rep("red", 4)), # Colorear Hair en azul y Eye en rojo
+             palette = c("blue", "red"),  # Define una paleta de colores
+             repel = TRUE,                 # Evitar la superposición de etiquetas
+             title = "MCA: Hair vs Eye Color con diferentes colores por variable")
+```
+
+### 2.3 Interpretación
+
+El gráfico de MCA muestra las asociaciones entre las categorías de las variables cualitativas. Las categorías que se encuentran más cerca en el gráfico están más asociadas en los datos.
+
+---
+
+## 3. Análisis Discriminante Lineal (LDA)
+
+### 3.1 Explicación del LDA
+
+El **Análisis Discriminante Lineal (LDA)** se utiliza para encontrar una combinación lineal de variables que maximice la separación entre grupos. Es útil para clasificar observaciones en diferentes categorías en función de varias variables predictoras.
+
+#### **Objetivo**:
+- Clasificar observaciones en categorías conocidas.
+- Maximizar la separación entre grupos.
+
+### 3.2 Ejemplo: LDA en `iris`
+
+#### 1. Cargar y visualizar los datos
+
+```{r}
+# Cargar el conjunto de datos iris
+data(iris)
+
+# Ver las primeras filas
+head(iris)
+```
+
+#### 2. Realizar el LDA
+
+```{r}
+# Instalar y cargar el paquete MASS si es necesario
+# install.packages("MASS")
+library(MASS)
+
+# Realizar el Análisis Discriminante Lineal
+lda_iris <- lda(Species ~ Sepal.Length + Sepal.Width + Petal.Length + Petal.Width, data = iris)
+
+# Mostrar el modelo ajustado
+print(lda_iris)
+```
+
+#### 3. Visualizar los Resultados del LDA
+
+Podemos visualizar las dos primeras funciones discriminantes para observar cómo se separan las especies en el espacio discriminante.
+
+```{r}
+# Gráfico de las dos primeras funciones discriminantes
+plot(lda_iris)
+```
+
+### 3.3 Interpretación
+
+El gráfico muestra cómo las diferentes especies de flores se separan en función de las variables predictoras. Las especies que se encuentran más alejadas en el gráfico están bien separadas en el espacio de las funciones discriminantes.
+
+---
+
+## 4. Ejercicios Prácticos
+
+### **Ejercicio 1**: Análisis de Componentes Principales
+
+Realiza un ACP sobre las variables numéricas de `mtcars`. Visualiza el biplot e interpreta los resultados.
+
+```{r}
+# Tu código aquí
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```{r}
+# Realizar el ACP sobre mtcars
+acp_mtcars <- prcomp(mtcars[, c("mpg", "hp", "wt")], scale. = TRUE)
+
+# Mostrar el resumen del ACP
+summary(acp_mtcars)
+
+# Visualizar el biplot
+biplot(acp_mtcars)
+```
+
+</details>
+
+---
+
+### **Ejercicio 2**: Análisis de Correspondencias Múltiples
+
+Usa la base de datos `HairEyeColor` para realizar un MCA sobre las variables `Hair` y `Eye`. Interpreta los resultados.
+
+```{r}
+# Tu código aquí
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```{r}
+#Realizar el MCA sobre Hair y Eye
+mca_hair_eye <- MCA(df_mca, graph = FALSE)
+
+# Mostrar el resumen
+summary(mca_hair_eye)
+
+# Visualizar el gráfico de MCA
+plot(mca_hair_eye, invisible = "quali.sup", main = "MCA: Hair vs Eye Color")
+```
+
+</details>
+
+---
+
+### **Ejercicio 3**: Análisis Discriminante Lineal
+
+Realiza un LDA sobre el conjunto de datos `iris` para clasificar las especies en función de las variables de longitud y anchura de sépalo y pétalo.
+
+```{r}
+# Tu código aquí
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```{r}
+# Realizar LDA en iris
+lda_iris <- lda(Species ~ Sepal.Length + Sepal.Width + Petal.Length + Petal.Width, data = iris)
+
+# Mostrar el modelo
+print(lda_iris)
+
+# Gráfico de LDA
+plot(lda_iris)
+```
+
+</details>
+

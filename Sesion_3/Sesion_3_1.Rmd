@@ -1,0 +1,220 @@
+---
+title: "Manipulación de Datos con Data.table en R"
+author: "Ricardo Macías Bohórquez"
+date: "`r format(Sys.Date(), '%d de %B de %Y')`"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    theme: cosmo
+    highlight: kate
+    code_folding: hide
+---
+
+# Introducción a Data.table
+
+En esta clase, exploraremos el uso de `data.table`, una poderosa herramienta para la manipulación eficiente de datos en R. `data.table` se utiliza cuando se trabaja con grandes conjuntos de datos debido a su velocidad y capacidad de memoria.
+
+---
+
+## 1. ¿Qué es Data.table?
+
+`data.table` es una extensión de `data.frame` que permite realizar manipulaciones avanzadas de datos de manera rápida y eficiente. A diferencia de los `data.frame`, `data.table` puede manejar operaciones como la agrupación y la ordenación de forma optimizada.
+
+Para instalar y cargar el paquete:
+
+```{r}
+# Instalar si es necesario
+# install.packages("data.table")
+
+# Cargar el paquete
+library(data.table)
+```
+
+---
+
+## 2. Creación de Data.table
+
+### 2.1 Convertir un Data.frame a Data.table
+
+Un `data.table` puede crearse fácilmente a partir de un `data.frame` ya existente. La conversión es simple utilizando la función `as.data.table()`.
+
+```{r}
+# Crear un data.frame
+df <- data.frame(
+  Nombre = c("Ana", "Luis", "Sofía"),
+  Edad = c(23, 34, 29),
+  Ciudad = c("Bogotá", "Medellín", "Cali")
+)
+
+# Convertir el data.frame a data.table
+dt <- as.data.table(df)
+print(dt)
+```
+
+### 2.2 Crear un Data.table desde cero
+
+También podemos crear un `data.table` desde cero:
+
+```{r}
+# Crear un data.table directamente
+dt <- data.table(
+  Nombre = c("Ana", "Luis", "Sofía"),
+  Edad = c(23, 34, 29),
+  Ciudad = c("Bogotá", "Medellín", "Cali")
+)
+print(dt)
+```
+
+---
+
+## 3. Selección de Datos en Data.table
+
+### 3.1 El símbolo `.` en `data.table`
+
+El símbolo `.` es un sinónimo de `list()` dentro de `data.table`. Esto significa que puedes usar `.` para devolver columnas en forma de lista (un formato compacto).
+
+Por ejemplo, al seleccionar la columna "Nombre" usando `data.table`:
+
+```{r}
+# Seleccionar la columna "Nombre"
+dt[, .(Nombre)]
+```
+
+Esta expresión es equivalente a escribir:
+
+```{r}
+# Selección equivalente
+dt[, list(Nombre)]
+```
+
+Es una forma concisa de devolver un subconjunto de columnas.
+
+### 3.2 Selección de filas y columnas con condiciones
+
+Al igual que en los `data.frames`, puedes seleccionar filas que cumplan ciertas condiciones. Lo hacemos utilizando el formato `[filas, columnas]`. 
+
+```{r}
+# Seleccionar filas donde Edad es mayor a 25
+dt[Edad > 25]
+```
+
+En este caso, solo estamos especificando una condición para las filas y dejando las columnas vacías, lo que implica que todas las columnas serán retornadas.
+
+---
+
+## 4. Modificación y Creación de Columnas
+
+### 4.1 El operador `:=`
+
+El operador `:=` en `data.table` es una característica fundamental que permite agregar, modificar o eliminar columnas sin hacer copias del conjunto de datos. Esto lo hace extremadamente eficiente en términos de memoria y velocidad.
+
+Ejemplo: Crear una nueva columna "Salario":
+
+```{r}
+# Crear una nueva columna "Salario"
+dt[, Salario := c(3000, 4000, 5000)]
+print(dt)
+```
+
+**Explicación**:
+- `:=` es un operador de asignación por referencia, lo que significa que modifica el objeto `dt` original sin duplicarlo.
+- En lugar de devolver un nuevo `data.table`, como haría `<-` o `=` en otros casos, `:=` actualiza `dt` directamente.
+
+---
+
+## 5. Agrupación y Agregación de Datos
+
+### 5.1 Agrupación con `by`
+
+Una de las funcionalidades más potentes de `data.table` es su capacidad de realizar operaciones de agregación (como promedios, sumas, etc.) por grupos. Esto se hace usando el argumento `by`.
+
+```{r}
+# Calcular el salario promedio por Ciudad
+dt[, .(Salario_Promedio = mean(Salario)), by = Ciudad]
+```
+
+**Explicación**:
+- **Salario_Promedio**: Este es el nombre de la nueva columna que contendrá los resultados de `mean(Salario)`.
+- **mean(Salario)**: Calcula el promedio de la columna "Salario" para cada grupo.
+- **by = Ciudad**: Indica que la operación se realizará por cada grupo distinto en la columna "Ciudad".
+
+### 5.2 Filtrar datos después de la agregación
+
+Puedes encadenar operaciones en `data.table`, lo que te permite, por ejemplo, agregar datos y luego aplicar un filtro adicional en una sola línea de código.
+
+```{r}
+# Filtrar las ciudades donde el salario promedio es mayor a 3500
+dt[, .(Salario_Promedio = mean(Salario)), by = Ciudad][Salario_Promedio > 3500]
+```
+
+**Explicación**:
+- Primero, se calcula el salario promedio por ciudad con `dt[, .(Salario_Promedio = mean(Salario)), by = Ciudad]`.
+- Luego, en la segunda parte, `Salario_Promedio > 3500`, filtramos los resultados para obtener solo las ciudades donde el salario promedio es mayor a 3500.
+
+---
+
+## 6. Ejercicios Prácticos
+
+### **Ejercicio 1**: Selección de Subconjuntos
+
+Usa `data.table` para seleccionar las filas del `data.table` `dt` donde la columna "Edad" sea mayor a 25 y la "Ciudad" no sea "Medellín".
+
+```r
+# Tu código aquí
+
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```{r}
+# Solución
+dt[Edad > 25 & Ciudad != "Medellín"]
+```
+
+</details>
+
+---
+
+### **Ejercicio 2**: Ordenar un Data.table
+
+Ordena el `data.table` `dt` por la columna "Salario" en orden descendente y luego por la columna "Edad" en orden ascendente.
+
+```r
+# Tu código aquí
+
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```{r}
+# Solución
+dt[order(-Salario, Edad)]
+```
+
+</details>
+
+---
+
+### **Ejercicio 3**: Creación de nuevas variables
+
+Crea una nueva columna llamada "Bonificación" en el `data.table` `dt` que sea igual al 10% del salario para personas mayores de 30 años, y 5% para el resto.
+
+```r
+# Tu código aquí
+
+```
+
+<details>
+<summary>Mostrar solución</summary>
+
+```{r}
+# Solución
+dt[, Bonificacion := ifelse(Edad > 30, Salario * 0.10, Salario * 0.05)]
+print(dt)
+```
+
+</details>

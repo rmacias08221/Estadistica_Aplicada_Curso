@@ -1,0 +1,197 @@
+---
+title: "Regresión Lineal Simple y Múltiple"
+author: "Ricardo Macías Bohórquez"
+date: "`r format(Sys.Date(), '%d de %B de %Y')`"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    theme: cosmo
+    highlight: kate
+    code_folding: hide
+---
+
+# Regresión Lineal Simple y Múltiple
+
+En este documento, exploraremos cómo aplicar y analizar la **regresión lineal simple** y la **regresión lineal múltiple**. Estos modelos permiten predecir el valor de una variable dependiente en función de una o más variables independientes.
+
+---
+
+## 1. Conceptos Fundamentales
+
+### 1.1 ¿Qué es la Regresión Lineal?
+
+La **regresión lineal** es una técnica estadística utilizada para modelar la relación entre una variable dependiente (o respuesta) y una o más variables independientes (o explicativas). El objetivo es encontrar la **mejor línea** que describa cómo la variable dependiente cambia a medida que cambian las variables independientes.
+
+### 1.2 Supuestos de la Regresión Lineal
+1. **Linealidad**: Existe una relación lineal entre las variables dependientes e independientes.
+2. **Independencia**: Las observaciones son independientes entre sí.
+3. **Normalidad de los residuos**: Los residuos del modelo siguen una distribución normal.
+4. **Homocedasticidad**: Los residuos presentan una varianza constante a lo largo de los valores predichos.
+
+---
+
+## 2. Regresión Lineal Simple
+
+### 2.1 Explicación
+
+La **regresión lineal simple** estudia la relación entre una variable dependiente y una sola variable independiente. El modelo tiene la siguiente forma:
+
+\[ Y = \beta_0 + \beta_1 X + \epsilon \]
+
+Donde:
+- **Y** es la variable dependiente.
+- **X** es la variable independiente.
+- **\beta_0** es la intersección (el valor de Y cuando X = 0).
+- **\beta_1** es la pendiente (el cambio en Y por cada unidad de cambio en X).
+- **\epsilon** es el término de error.
+
+### 2.2 Ejemplo: Regresión lineal entre `mpg` (Millas por Galón) y `wt` (Peso) en `mtcars`
+
+#### 1. Cargar los datos
+
+```{r}
+# Cargar la base de datos mtcars
+data(mtcars)
+
+# Visualizar las primeras filas
+head(mtcars)
+```
+
+#### 2. Visualizar la relación entre las variables
+
+```{r}
+# Gráfico de dispersión entre mpg y wt
+plot(mtcars$wt, mtcars$mpg, 
+     main = "Relación entre Peso y Millas por Galón", 
+     xlab = "Peso (en 1000 libras)", 
+     ylab = "Millas por Galón", 
+     pch = 19, col = "blue")
+```
+
+#### 3. Ajustar el modelo de regresión lineal
+
+```{r}
+# Ajustar el modelo de regresión lineal
+modelo_simple <- lm(mpg ~ wt, data = mtcars)
+
+# Mostrar el resumen del modelo
+summary(modelo_simple)
+```
+
+### 2.3 Interpretación de los resultados
+
+- **Intercepto (\(\beta_0\))**: Indica que cuando el peso (`wt`) es 0, el valor de `mpg` sería 37.29. Este valor es solo teórico, ya que no tendría sentido un automóvil con peso 0.
+- **Pendiente (\(\beta_1 = -5.34\))**: Esto significa que por cada 1000 libras adicionales de peso, el consumo de combustible (`mpg`) disminuye en 5.34 millas por galón.
+- **p-value (\(p < 0.05\))**: El valor p asociado a `wt` es extremadamente bajo (1.29e-10), lo que indica que el peso tiene un impacto significativo en `mpg`.
+- **R-cuadrado (0.7528)**: Esto significa que el 75.28% de la variabilidad en `mpg` es explicada por el peso del automóvil. Este es un ajuste bastante fuerte para un modelo simple.
+
+#### 4. Visualizar la línea de regresión
+
+```{r}
+# Crear el gráfico de dispersión entre 'wt' y 'mpg'
+plot(mtcars$wt, mtcars$mpg, 
+     main = "Relación entre Peso y Millas por Galón", 
+     xlab = "Peso (en 1000 libras)", 
+     ylab = "Millas por Galón", 
+     pch = 19, col = "blue")
+
+# Añadir la línea de regresión al gráfico
+abline(modelo_simple, col = "red", lwd = 2)
+```
+
+En el gráfico, los puntos azules representan los datos reales, y la línea roja muestra la relación lineal ajustada por el modelo.
+
+---
+
+## 3. Regresión Lineal Múltiple
+
+### 3.1 Explicación
+
+La **regresión lineal múltiple** permite incluir más de una variable independiente para predecir la variable dependiente. El modelo tiene la siguiente forma:
+
+\[ Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \ldots + \beta_n X_n + \epsilon \]
+
+### 3.2 Ejemplo: Predecir `mpg` usando `wt` (peso) y `hp` (caballos de fuerza) en `mtcars`
+
+#### 1. Ajustar el modelo de regresión múltiple
+
+```{r}
+# Ajustar el modelo de regresión lineal múltiple
+modelo_multiple <- lm(mpg ~ wt + hp, data = mtcars)
+
+# Mostrar el resumen del modelo
+summary(modelo_multiple)
+```
+
+### 3.3 Interpretación de los resultados
+
+- **Intercepto (\(\beta_0 = 37.23\))**: Este es el valor estimado de `mpg` cuando tanto el peso como los caballos de fuerza son 0. Aunque teóricamente interesante, no tiene sentido práctico en este contexto.
+- **\(\beta_1 = -3.88\)**: Esto significa que por cada 1000 libras adicionales de peso, `mpg` disminuye en 3.88 millas por galón, manteniendo los caballos de fuerza constantes.
+- **\(\beta_2 = -0.03177\)**: Esto indica que por cada unidad adicional de caballos de fuerza (`hp`), `mpg` disminuye en 0.03177 millas por galón, manteniendo constante el peso.
+- **p-value**: Tanto `wt` como `hp` tienen valores p muy bajos, lo que indica que ambos predictores tienen un impacto significativo en `mpg`.
+- **R-cuadrado ajustado (0.8148)**: El modelo explica aproximadamente el 81.48% de la variabilidad en `mpg`, lo que sugiere un ajuste sólido.
+
+---
+
+## 4. Diagnósticos del Modelo
+
+Es importante verificar que el modelo cumple con los supuestos de la regresión lineal.
+
+### 4.1 Gráfico de Residuos
+
+```{r}
+# Gráfico de residuos
+par(mfrow = c(2, 2))
+plot(modelo_multiple)
+```
+
+#### 4.2 Interpretación de los gráficos:
+
+1. **Residuals vs Fitted**: Los residuos deben estar distribuidos aleatoriamente. Si hay patrones, podría haber un problema de linealidad.
+2. **Normal Q-Q**: Verifica la normalidad de los residuos. Si los puntos siguen una línea recta, es probable que los residuos sean normales.
+3. **Scale-Location**: Evalúa la homocedasticidad (igual varianza de los residuos). Si los puntos están distribuidos de manera uniforme, entonces este supuesto se cumple.
+4. **Residuals vs Leverage**: Identifica puntos que podrían estar influyendo demasiado en el modelo. Si hay puntos fuera de la región de confianza, pueden ser influyentes.
+
+---
+
+## 5. Ejercicios Prácticos
+
+### **Ejercicio 1**: Regresión lineal simple
+
+Usa el conjunto de datos `iris` para ajustar un modelo de regresión lineal simple que prediga la longitud del sépalo (`Sepal.Length`) a partir de la longitud del pétalo (`Petal.Length`).
+
+```{r}
+# Ajustar el modelo de regresión lineal simple
+modelo_iris_simple <- lm(Sepal.Length ~ Petal.Length, data = iris)
+
+# Mostrar el resumen del modelo
+summary(modelo_iris_simple)
+```
+
+**Interpretación**:
+- La pendiente indica cómo cambia la longitud del sépalo por cada unidad de cambio en la longitud del pétalo.
+- El intercepto representa el valor esperado de la longitud del sépalo cuando la longitud del pétalo es 0.
+
+---
+
+### **Ejercicio 2**: Regresión lineal múltiple
+
+Usa el conjunto de datos `mtcars` para ajustar un modelo de regresión lineal múltiple que prediga `mpg` usando `wt`, `hp`, y `qsec` como variables independientes.
+
+```{r}
+
+
+# Ajustar el modelo de regresión lineal múltiple
+modelo_iris_multiple <- lm(mpg ~ wt + hp + qsec, data = mtcars)
+
+# Mostrar el resumen del modelo
+summary(modelo_iris_multiple)
+```
+
+**Interpretación**:
+- Este modelo incluye tres predictores. Analiza el impacto de cada uno controlando por los demás.
+- El R-cuadrado ajustado te indicará cuánta variabilidad del `mpg` es explicada por el peso, los caballos de fuerza, y el tiempo en el cuarto de milla (`qsec`).
+
+---
