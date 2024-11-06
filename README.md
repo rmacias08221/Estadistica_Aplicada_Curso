@@ -50,4 +50,5 @@ Este curso está diseñado para introducir a los participantes en conceptos esen
 - Nociones fundamentales de estadística descriptiva e inferencia estadística.
 
 ## **Duración del curso**
-Este curso tiene una duración estimada de **20 horas**.
+Este curso tiene una duración estimada de **24 horas**.
+
